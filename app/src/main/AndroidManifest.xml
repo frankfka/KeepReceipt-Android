@@ -13,14 +13,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddReceiptActivity"></activity>
+        <activity android:name=".view.AddReceiptActivity"></activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.jiafrank.fileprovider"
