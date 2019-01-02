@@ -1,8 +1,7 @@
-package com.jiafrank.receipttracker.view;
+package com.jiafrank.keepreceipt.view;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,14 +12,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
-import com.jiafrank.receipttracker.data.Receipt;
-import com.jiafrank.receipttracker.service.ImageService;
-import com.jiafrank.receipttracker.R;
-import com.jiafrank.receipttracker.data.Category;
-import com.jiafrank.receipttracker.data.RealmConfig;
-import com.jiafrank.receipttracker.view.adapter.ReceiptListAdapter;
+import com.jiafrank.keepreceipt.data.Receipt;
+import com.jiafrank.keepreceipt.service.ImageService;
+import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.RealmConfig;
+import com.jiafrank.keepreceipt.view.adapter.ReceiptListAdapter;
 
 import java.io.File;
 import java.io.IOException;

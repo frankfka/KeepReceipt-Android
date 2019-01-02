@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker;
+package com.jiafrank.keepreceipt;
 
 import org.junit.Test;
 

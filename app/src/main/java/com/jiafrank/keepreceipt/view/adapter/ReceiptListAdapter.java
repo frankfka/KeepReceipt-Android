@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker.view.adapter;
+package com.jiafrank.keepreceipt.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jiafrank.receipttracker.R;
-import com.jiafrank.receipttracker.data.Receipt;
-import com.jiafrank.receipttracker.service.ImageService;
+import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.Receipt;
+import com.jiafrank.keepreceipt.service.ImageService;
 
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;

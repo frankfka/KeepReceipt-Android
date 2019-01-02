@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker.service;
+package com.jiafrank.keepreceipt.service;
 
 import android.content.Context;
 import android.graphics.Bitmap;

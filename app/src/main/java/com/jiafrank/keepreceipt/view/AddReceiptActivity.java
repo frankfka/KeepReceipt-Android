@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker.view;
+package com.jiafrank.keepreceipt.view;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.jiafrank.receipttracker.R;
-import com.jiafrank.receipttracker.data.Receipt;
+import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.Receipt;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker.data;
+package com.jiafrank.keepreceipt.data;
 
 import io.realm.RealmConfiguration;
 

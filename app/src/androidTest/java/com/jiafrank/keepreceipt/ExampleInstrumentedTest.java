@@ -1,4 +1,4 @@
-package com.jiafrank.receipttracker;
+package com.jiafrank.keepreceipt;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
