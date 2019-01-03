@@ -6,11 +6,15 @@ import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.jiafrank.keepreceipt.data.Receipt;
@@ -27,6 +31,8 @@ import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    // TODO extract all the strings used here as static variables
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int ADD_NEW_RECEIPT = 2;
     private static final String LOGTAG = "MainActivity";
@@ -61,7 +67,46 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /**
+     * Options menu stuff
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_screen_menu, menu);
+
+        // Set up search
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Enter a vendor, date, or amount");
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+
+                Log.e(LOGTAG, "Search Expand");
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+
+                Log.e(LOGTAG, "Search Collapse");
+                return true;
+            }
+        });
+
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Set up all the UI elements
+     */
     private void setUpUI() {
+
+        // Set up title
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Receipts");
 
         // Set up action button
         addItemButton = findViewById(R.id.addItemButton);
@@ -75,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up recycler
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ReceiptListAdapter receiptListAdapter = new ReceiptListAdapter(realm.where(Receipt.class).findAll().sort("time", Sort.DESCENDING));
+        ReceiptListAdapter receiptListAdapter = new ReceiptListAdapter(realm.where(Receipt.class).findAll().sort("transactionTime", Sort.DESCENDING));
         recyclerView.setAdapter(receiptListAdapter);
     }
 

@@ -57,7 +57,7 @@ public class AddReceiptActivity extends AppCompatActivity {
 
                     realm.beginTransaction();
                     Receipt receiptToAdd = realm.createObject(Receipt.class, receiptId);
-                    receiptToAdd.setTime(new Date());
+                    receiptToAdd.setTransactionTime(new Date());
                     receiptToAdd.setAmount(0);
                     receiptToAdd.setVendor(vendorName);
                     realm.commitTransaction();

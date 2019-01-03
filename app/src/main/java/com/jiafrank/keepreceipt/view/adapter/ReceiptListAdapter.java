@@ -41,7 +41,7 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
     public void onBindViewHolder(ReceiptItemViewHolder holder, int position) {
 
         // Get References to UI elements
-        TextView receiptText = holder.rootViewContainer.findViewById(R.id.receiptText);
+        TextView receiptText = holder.rootViewContainer.findViewById(R.id.receiptRetailerText);
         ImageView receiptImage = holder.rootViewContainer.findViewById(R.id.receiptImage);
 
         // Get the receipt to show the data for

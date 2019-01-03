@@ -6,5 +6,9 @@
     <string name="placeholder_receipt_price">$100.00</string>
     <string name="placeholder_receipt_date">Dec 26, 2018</string>
 
+    <!--Menu Item Names-->
+    <string name="action_search_name">Search</string>
+    <string name="action_edit_multiple_name">Edit Multiple</string>
+    <string name="action_filter_name">Filter</string>
 
 </resources>
