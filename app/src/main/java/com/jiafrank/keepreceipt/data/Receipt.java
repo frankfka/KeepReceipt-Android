@@ -15,9 +15,12 @@ public class Receipt extends RealmObject {
 
     @PrimaryKey
     private String receiptId;
+    private String backReceiptId;
     private String vendor;
+    private String currency;
     private double amount;
-    private Date time;
+    private Date transactionTime;
+    private String notes;
     @LinkingObjects("receipts")
     private final RealmResults<Category> parentCategories = null;
 
