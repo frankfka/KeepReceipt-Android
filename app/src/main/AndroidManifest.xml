@@ -22,7 +22,7 @@
         </activity>
         <activity android:name="com.jiafrank.keepreceipt.view.AddReceiptActivity" />
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.jiafrank.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">

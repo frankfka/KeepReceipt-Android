@@ -1,6 +1,6 @@
 package com.jiafrank.keepreceipt.view;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +46,7 @@ public class AddReceiptActivity extends AppCompatActivity {
 
     private void setUpUI() {
         editText = findViewById(R.id.editText);
-        submitButton = findViewById(R.id.submitButton);
+        submitButton = findViewById(R.id.submitChangesButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
