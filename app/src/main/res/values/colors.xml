@@ -9,4 +9,5 @@
     <color name="colorTextLight">#757575</color>
     <color name="colorTextWhite">#FFFFFF</color>
     <color name="colorDivider">#BDBDBD</color>
+    <color name="darkOverlay">#4D000000</color>
 </resources>

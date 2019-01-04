@@ -11,4 +11,11 @@
     <string name="action_edit_multiple_name">Edit Multiple</string>
     <string name="action_filter_name">Filter</string>
 
+    <!--Add/Edit Receipt-->
+    <string name="edit_hint_vendor">Vendor</string>
+    <string name="edit_receipt_price">Price</string>
+    <string name="edit_receipt_date">Date</string>
+    <string name="edit_receipt_save">Save</string>
+    <string name="action_edit_receipt_delete">Delete</string>
+
 </resources>

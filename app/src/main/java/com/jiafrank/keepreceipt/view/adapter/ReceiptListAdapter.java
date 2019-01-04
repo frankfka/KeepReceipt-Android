@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
+import com.jiafrank.keepreceipt.service.TextFormatService;
 
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -41,14 +42,27 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
     public void onBindViewHolder(ReceiptItemViewHolder holder, int position) {
 
         // Get References to UI elements
-        TextView receiptText = holder.rootViewContainer.findViewById(R.id.receiptRetailerText);
+        TextView vendorText = holder.rootViewContainer.findViewById(R.id.receiptRetailerText);
+        TextView amountText = holder.rootViewContainer.findViewById(R.id.receiptPriceText);
+        TextView dateText = holder.rootViewContainer.findViewById(R.id.receiptDateText);
         ImageView receiptImage = holder.rootViewContainer.findViewById(R.id.receiptImage);
 
         // Get the receipt to show the data for
         Receipt receipt = receipts.get(position);
 
         // Update UI
-        receiptText.setText(receipt.getVendor());
+        if (receipt.getVendor() != null) {
+            vendorText.setText(receipt.getVendor());
+        } else {
+            vendorText.setText("");
+        }
+        if (receipt.getTransactionTime() != null) {
+            dateText.setText(TextFormatService.getFormattedStringFromDate(receipt.getTransactionTime(), false));
+        } else {
+            dateText.setText("");
+        }
+        amountText.setText(TextFormatService.getFormattedCurrencyString(receipt.getAmount()));
+
         // Get a scaled image so we're not passing around full-size images within memory
         receiptImage.setImageBitmap(imageService.getImageFile(receipt.getReceiptId(), holder.rootViewContainer.getContext(), 72, 72));
     }

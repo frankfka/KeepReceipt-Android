@@ -20,7 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.jiafrank.keepreceipt.view.AddReceiptActivity" />
+        <activity android:name="com.jiafrank.keepreceipt.view.AddOrEditReceiptActivity" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.jiafrank.fileprovider"

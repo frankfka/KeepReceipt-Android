@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_edit_receipt_delete"
+        android:icon="@drawable/ic_baseline_delete"
+        android:title="@string/action_edit_receipt_delete"
+        app:showAsAction="ifRoom"/>
+
+</menu>

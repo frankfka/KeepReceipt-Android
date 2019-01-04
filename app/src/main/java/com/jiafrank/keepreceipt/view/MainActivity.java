@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private Realm realm;
     private ImageService imageService = new ImageService();
 
-    // Gets passed to AddReceiptActivity
+    // Gets passed to AddOrEditReceiptActivity
     private String newPhotoId;
 
     // UI Elements
@@ -164,9 +164,9 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 
             // Launch into new activity
-            Intent addReceiptIntent = new Intent(MainActivity.this, AddReceiptActivity.class);
-            // Maybe just use ADD_NEW_RECEIPT
-            addReceiptIntent.putExtra(AddReceiptActivity.ID_STRING_INTENT_NAME, newPhotoId);
+            Intent addReceiptIntent = new Intent(MainActivity.this, AddOrEditReceiptActivity.class);
+            addReceiptIntent.putExtra(AddOrEditReceiptActivity.ID_STRING_INTENT_NAME, newPhotoId);
+            addReceiptIntent.putExtra(AddOrEditReceiptActivity.ACTIVITY_ACTION_INTENT_NAME, AddOrEditReceiptActivity.ACTIVITY_ACTION_CREATE);
             startActivityForResult(addReceiptIntent, ADD_NEW_RECEIPT);
 
             Log.d(LOGTAG, "Take image successful");
