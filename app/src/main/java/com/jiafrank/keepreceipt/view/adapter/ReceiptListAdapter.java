@@ -1,6 +1,8 @@
 package com.jiafrank.keepreceipt.view.adapter;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +67,15 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
 
         // Get a scaled image so we're not passing around full-size images within memory
         receiptImage.setImageBitmap(imageService.getImageFile(receipt.getReceiptId(), holder.rootViewContainer.getContext(), 72, 72));
+
+        // Set up a click listener
+        holder.rootViewContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("Adapter", "clicked");
+            }
+        });
+
     }
 
     @Override

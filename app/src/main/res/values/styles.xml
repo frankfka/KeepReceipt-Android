@@ -8,4 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="standardText">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="labelText" parent="standardText">
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
+    <style name="labelValueText" parent="standardText">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
 </resources>

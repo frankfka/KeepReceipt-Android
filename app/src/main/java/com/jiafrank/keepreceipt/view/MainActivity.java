@@ -180,8 +180,13 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOGTAG, "Add New Receipt Failed");
             Snackbar.make(findViewById(R.id.mainActivityRootView), "Something Went Wrong", Snackbar.LENGTH_SHORT);
 
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE){
+
+            Log.d(LOGTAG, "Take image cancelled");
+
+        } else {
+            Log.e(LOGTAG, "Unsupported onActivityResult case");
         }
-            Log.d(LOGTAG, "User cancelled take image");
     }
 
     /**

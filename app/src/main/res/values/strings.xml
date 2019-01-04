@@ -17,5 +17,9 @@
     <string name="edit_receipt_date">Date</string>
     <string name="edit_receipt_save">Save</string>
     <string name="action_edit_receipt_delete">Delete</string>
+    <string name="view_receipt_vendor_label">Vendor Name:</string>
+    <string name="view_receipt_date_label">Date:</string>
+    <string name="view_receipt_amount_label">Amount:</string>
+    <string name="action_edit_receipt">Edit</string>
 
 </resources>

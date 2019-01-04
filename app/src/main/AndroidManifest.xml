@@ -14,13 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="com.jiafrank.keepreceipt.view.MainActivity">
+        <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.jiafrank.keepreceipt.view.AddOrEditReceiptActivity" />
+        <activity android:name=".view.AddOrEditReceiptActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.jiafrank.fileprovider"
@@ -30,6 +32,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <activity android:name=".view.ViewReceiptActivity"></activity>
     </application>
 
 </manifest>

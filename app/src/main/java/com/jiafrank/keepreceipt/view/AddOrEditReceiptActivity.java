@@ -13,11 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
@@ -27,7 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import androidx.appcompat.widget.SearchView;
 import io.realm.Realm;
 
 public class AddOrEditReceiptActivity extends AppCompatActivity {
@@ -61,7 +58,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_receipt);
+        setContentView(R.layout.activity_add_or_edit_receipt);
 
         String possiblyNullId = getIntent().getStringExtra(ID_STRING_INTENT_NAME);
         int possiblyInvalidAction = getIntent().getIntExtra(ACTIVITY_ACTION_INTENT_NAME, 0);
