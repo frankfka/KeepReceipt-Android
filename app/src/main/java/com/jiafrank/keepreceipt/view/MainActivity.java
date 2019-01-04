@@ -29,12 +29,16 @@ import java.io.IOException;
 import io.realm.Realm;
 import io.realm.Sort;
 
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.ADD_NEW_RECEIPT;
+import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.REQUEST_IMAGE_CAPTURE;
+
 public class MainActivity extends AppCompatActivity {
 
 
     // TODO extract all the strings used here as static variables
-    public static final int REQUEST_IMAGE_CAPTURE = 1;
-    public static final int ADD_NEW_RECEIPT = 2;
     private static final String LOGTAG = "MainActivity";
 
     private Realm realm;
@@ -165,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
 
             // Launch into new activity
             Intent addReceiptIntent = new Intent(MainActivity.this, AddOrEditReceiptActivity.class);
-            addReceiptIntent.putExtra(AddOrEditReceiptActivity.ID_STRING_INTENT_NAME, newPhotoId);
-            addReceiptIntent.putExtra(AddOrEditReceiptActivity.ACTIVITY_ACTION_INTENT_NAME, AddOrEditReceiptActivity.ACTIVITY_ACTION_CREATE);
+            addReceiptIntent.putExtra(ID_STRING_INTENT_NAME, newPhotoId);
+            addReceiptIntent.putExtra(ACTIVITY_ACTION_INTENT_NAME, ACTIVITY_ACTION_CREATE);
             startActivityForResult(addReceiptIntent, ADD_NEW_RECEIPT);
 
             Log.d(LOGTAG, "Take image successful");

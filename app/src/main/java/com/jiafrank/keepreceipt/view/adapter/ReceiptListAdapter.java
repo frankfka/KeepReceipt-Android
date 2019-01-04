@@ -2,6 +2,8 @@ package com.jiafrank.keepreceipt.view.adapter;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jiafrank.keepreceipt.Constants;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
+import com.jiafrank.keepreceipt.view.ViewReceiptActivity;
 
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -41,7 +45,7 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ReceiptItemViewHolder holder, int position) {
+    public void onBindViewHolder(final ReceiptItemViewHolder holder, int position) {
 
         // Get References to UI elements
         TextView vendorText = holder.rootViewContainer.findViewById(R.id.receiptRetailerText);
@@ -50,7 +54,7 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
         ImageView receiptImage = holder.rootViewContainer.findViewById(R.id.receiptImage);
 
         // Get the receipt to show the data for
-        Receipt receipt = receipts.get(position);
+        final Receipt receipt = receipts.get(position);
 
         // Update UI
         if (receipt.getVendor() != null) {
@@ -72,7 +76,9 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
         holder.rootViewContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("Adapter", "clicked");
+                Intent intent = new Intent(holder.context, ViewReceiptActivity.class);
+                intent.putExtra(Constants.ID_STRING_INTENT_NAME, receipt.getReceiptId());
+                holder.context.startActivity(intent);
             }
         });
 
@@ -93,10 +99,12 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
 
     public static class ReceiptItemViewHolder extends RecyclerView.ViewHolder {
         public View rootViewContainer;
+        public Context context;
 
         public ReceiptItemViewHolder(View v) {
             super(v);
             rootViewContainer = v;
+            context = v.getContext();
         }
     }
 

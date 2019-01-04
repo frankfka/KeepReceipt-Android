@@ -20,6 +20,7 @@ import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
+import com.jiafrank.keepreceipt.service.UIService;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -27,16 +28,19 @@ import java.util.Locale;
 
 import io.realm.Realm;
 
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
+import static com.jiafrank.keepreceipt.service.UIService.DISMISS_ALERT_DIALOG_LISTENER;
+
 public class AddOrEditReceiptActivity extends AppCompatActivity {
 
-    public static String ID_STRING_INTENT_NAME = "ID_STRING_INTENT_NAME";
-    public static String ACTIVITY_ACTION_INTENT_NAME = "ACTIVITY_ACTION_INTENT_NAME";
-    public static int ACTIVITY_ACTION_EDIT = 2;
-    public static int ACTIVITY_ACTION_CREATE = 1;
     private static String LOGTAG = "AddOrEditReceiptActivity";
 
     // Receipt ID is just the file name
     private String receiptId = null;
+    private Receipt receiptIfEditing = null;
     private int activityAction;
 
     // UI elements
@@ -70,9 +74,34 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         } else {
             // Go back to previous activity & indicate that something failed
             Log.e(LOGTAG, "Sufficient extras were not provided");
-            finishActivity(false);
+            UIService.finishActivity(this,false);
         }
 
+        // Initialize state variables if we're editing
+        if (activityAction == ACTIVITY_ACTION_EDIT) {
+
+            try (Realm realm = Realm.getDefaultInstance()) {
+                receiptIfEditing = realm.where(Receipt.class).equalTo("receiptId", possiblyNullId).findFirst();
+            }
+            if (null == receiptIfEditing) {
+                Log.e(LOGTAG, "Could not find a receipt object with the ID ".concat(receiptId));
+                UIService.finishActivity(this, false);
+            }
+
+            statedCalendar.setTime(receiptIfEditing.getTransactionTime());
+            statedPrice = receiptIfEditing.getAmount();
+            statedVendorName = receiptIfEditing.getVendor();
+
+        }
+        // TODO can you just standardize setupUI to use all the stated Stuff? can initialize all the views the same way?
+
+        // Initialize all the views
+        actionBar = getSupportActionBar();
+        vendorNameInput = findViewById(R.id.receiptVendorNameInput);
+        priceInput = findViewById(R.id.receiptPriceInput);
+        dateInput = findViewById(R.id.receiptDateInput);
+        submitButton = findViewById(R.id.submit_button);
+        receiptImageView = findViewById(R.id.largeReceiptImageView);
         setUpUI();
 
     }
@@ -89,17 +118,24 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
 
         if (activityAction == ACTIVITY_ACTION_CREATE) {
 
-            // Go back to previous activity on delete click (after dialog is shown)
+            // Define alert dialog listeners
+            final AlertDialog.OnClickListener positiveDialogListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    UIService.finishActivity(AddOrEditReceiptActivity.this,false);
+                }
+            };
+
             deleteButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    showAlertDialog("Cancel Add Receipt", "Are you sure you want to cancel?",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finishActivity(false);
-                                }
-                            });
+
+                    // TODO extract as string resources
+                    UIService.getAlertDialog(AddOrEditReceiptActivity.this, "Cancel Add Receipt",
+                            "Are you sure you want to cancel?",
+                            "Yes", positiveDialogListener,
+                            "No", DISMISS_ALERT_DIALOG_LISTENER).show();
+
                     return true;
                 }
             });
@@ -113,13 +149,6 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     }
 
     private void setUpUI() {
-
-        actionBar = getSupportActionBar();
-        vendorNameInput = findViewById(R.id.receiptVendorNameInput);
-        priceInput = findViewById(R.id.receiptPriceInput);
-        dateInput = findViewById(R.id.receiptDateInput);
-        submitButton = findViewById(R.id.submit_button);
-        receiptImageView = findViewById(R.id.largeReceiptImageView);
 
         // Show the receipt image regardless, scale it down to save memory
         receiptImageView.setImageBitmap(imageService.getImageFile(receiptId, this, 500, 500));
@@ -166,57 +195,27 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                         realm.commitTransaction();
 
                         // Go back to previous activity
-                        finishActivity(true);
+                        UIService.finishActivity(AddOrEditReceiptActivity.this,true);
                     }
 
                     // Go back to previous activity & indicate that something failed
-                    finishActivity(false);
+                    UIService.finishActivity(AddOrEditReceiptActivity.this,false);
                 }
             });
 
         } else if (activityAction == ACTIVITY_ACTION_EDIT) {
 
-            //Change actionbar title
+            actionBar.setTitle("Edit Receipt");
             //        // prefill all fields
             //        // revise current entry
             //        // Delete button actually deletes from realm
 
         } else {
             Log.e(LOGTAG, "Activity action identifier was not valid");
-            finishActivity(false);
+            UIService.finishActivity(this,false);
         }
 
-
-//
     }
-
-    private void showAlertDialog(String title, String message, DialogInterface.OnClickListener yesListener) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(message);
-        alertDialogBuilder.setPositiveButton("Yes", yesListener);
-        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alertDialogBuilder.create().show();
-    }
-
-
-    /**
-     * Go back to the previous activity indicating success or not
-     *
-     * @param succeeded whether a new receipt was added to realm
-     */
-    private void finishActivity(boolean succeeded) {
-        if (succeeded) {
-            setResult(RESULT_OK);
-        } else {
-            setResult(RESULT_CANCELED);
-        }
-        finish();
-    }
+    
 
 }
