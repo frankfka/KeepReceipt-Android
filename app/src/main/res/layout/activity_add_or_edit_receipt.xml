@@ -22,10 +22,13 @@
 
             <ImageView
                 android:id="@+id/largeReceiptImageView"
-                android:layout_width="384dp"
+                android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:scaleType="centerCrop"
                 android:tint="@color/darkOverlay"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@color/colorAccent" />
 
 

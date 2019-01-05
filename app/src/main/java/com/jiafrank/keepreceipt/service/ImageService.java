@@ -18,7 +18,7 @@ public class ImageService {
     /**
      * Create a new image file for which to save the picture
      */
-    public File getNewImageFile(Context context) throws IOException {
+    public static File getNewImageFile(Context context) throws IOException {
 
         // Image file name is same as ID - categorized by date created
         String imageFileName = new SimpleDateFormat(DATE_FORMAT_PATTERN).format(new Date());
@@ -33,34 +33,10 @@ public class ImageService {
     }
 
     /**
-     * Retrieve bitmap image from a file name (same as receipt ID)
-     *
-     * @param imageFileName the file name for the receipt image, same as ID
-     * @param height specify if you want a specific size for the image - both width & height must be non-zero
-     * @param width specify if you want a specific size for the image - both width & height must be non-zero
+     * Get File from image ID
      */
-    public Bitmap getImageFile(String imageFileName, Context context, int width, int height) {
-
+    public static File getImageFile(String imageFileName, Context context) {
         String storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath().concat("/");
-        String filePath = storageDirectory.concat(imageFileName);
-
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-
-        // Scale if these are specified
-        if (width != 0 && height != 0) {
-            int photoW = bmOptions.outWidth;
-            int photoH = bmOptions.outHeight;
-
-            // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW / width, photoH / height);
-
-            // Decode the image file into a Bitmap sized to fill the View
-            bmOptions.inJustDecodeBounds = false;
-            bmOptions.inSampleSize = scaleFactor;
-        } else {
-            bmOptions.inJustDecodeBounds = true;
-        }
-
-        return BitmapFactory.decodeFile(filePath, bmOptions);
+        return new File(storageDirectory.concat(imageFileName));
     }
 }

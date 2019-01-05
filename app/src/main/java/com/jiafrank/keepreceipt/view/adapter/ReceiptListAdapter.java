@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.jiafrank.keepreceipt.Constants;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
@@ -18,14 +21,20 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.view.ViewReceiptActivity;
 
+import java.io.File;
+
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.ReceiptItemViewHolder> {
 
     // The data to display
-    private RealmResults<Receipt> receipts;
-    private ImageService imageService = new ImageService();
+    public RealmResults<Receipt> receipts;
+
+    public void setReceipts(RealmResults<Receipt> receipts) {
+        this.receipts = receipts;
+        notifyDataSetChanged();
+    }
 
     /**
      * This adapter takes in RealmResults containing a set of receipts to display
@@ -70,7 +79,10 @@ public class ReceiptListAdapter extends RecyclerView.Adapter<ReceiptListAdapter.
         amountText.setText(TextFormatService.getFormattedCurrencyString(receipt.getAmount()));
 
         // Get a scaled image so we're not passing around full-size images within memory
-        receiptImage.setImageBitmap(imageService.getImageFile(receipt.getReceiptId(), holder.rootViewContainer.getContext(), 72, 72));
+        Glide.with(holder.context)
+                .load(ImageService.getImageFile(receipt.getReceiptId(), holder.context))
+                .apply(RequestOptions.centerCropTransform())
+                .into(receiptImage);
 
         // Set up a click listener
         holder.rootViewContainer.setOnClickListener(new View.OnClickListener() {

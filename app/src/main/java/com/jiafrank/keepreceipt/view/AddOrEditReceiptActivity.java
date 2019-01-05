@@ -15,7 +15,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
@@ -45,7 +48,9 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
 
     // UI elements
     private TextInputEditText vendorNameInput;
+    private TextInputLayout vendorNameInputLayout;
     private TextInputEditText priceInput;
+    private TextInputLayout priceInputLayout;
     private TextInputEditText dateInput;
     private Button submitButton;
     private ImageView receiptImageView;
@@ -56,8 +61,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private String statedVendorName = "";
     private Calendar statedCalendar = Calendar.getInstance(Locale.getDefault());
 
-    // Services
-    private ImageService imageService = new ImageService();
+    // TODO VALIDATION ON FIELDS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +97,13 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             statedVendorName = receiptIfEditing.getVendor();
 
         }
-        // TODO can you just standardize setupUI to use all the stated Stuff? can initialize all the views the same way?
 
         // Initialize all the views
         actionBar = getSupportActionBar();
         vendorNameInput = findViewById(R.id.receiptVendorNameInput);
+        vendorNameInputLayout = findViewById(R.id.receiptVendorNameInputLayout);
         priceInput = findViewById(R.id.receiptPriceInput);
+        priceInputLayout = findViewById(R.id.receiptPriceInputLayout);
         dateInput = findViewById(R.id.receiptDateInput);
         submitButton = findViewById(R.id.submit_button);
         receiptImageView = findViewById(R.id.largeReceiptImageView);
@@ -111,12 +116,15 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.add_edit_receipt_menu, menu);
 
-        // Set up delete reference - onclick will be handled in setUpUI()
-        MenuItem deleteButton = menu.findItem(R.id.action_edit_receipt_delete);
+        // Only show delete button if adding new receipt
 
         if (activityAction == ACTIVITY_ACTION_CREATE) {
+
+            getMenuInflater().inflate(R.menu.add_edit_receipt_menu, menu);
+
+            // Set up delete reference - onclick will be handled in setUpUI()
+            MenuItem deleteButton = menu.findItem(R.id.action_edit_receipt_delete);
 
             // Define alert dialog listeners
             final AlertDialog.OnClickListener positiveDialogListener = new DialogInterface.OnClickListener() {
@@ -140,18 +148,20 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                 }
             });
 
-        } else if (activityAction == ACTIVITY_ACTION_EDIT) {
-
         }
-
 
         return super.onCreateOptionsMenu(menu);
     }
 
     private void setUpUI() {
 
-        // Show the receipt image regardless, scale it down to save memory
-        receiptImageView.setImageBitmap(imageService.getImageFile(receiptId, this, 500, 500));
+        // Show the receipt image regardless
+        Glide.with(this)
+                .load(ImageService.getImageFile(receiptId, this))
+                .apply(RequestOptions.centerCropTransform())
+                .into(receiptImageView);
+        // Show stated date ( will be current date for create action )
+        dateInput.setText(TextFormatService.getFormattedStringFromDate(statedCalendar.getTime(), true));
         // Initialize a date picker listener
         final DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -180,35 +190,59 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-                    statedPrice = Double.valueOf(priceInput.getText().toString());
-                    statedVendorName = vendorNameInput.getText().toString();
+                    if(validateInputsOrShowError()) {
+                        statedPrice = Double.valueOf(priceInput.getText().toString());
+                        statedVendorName = vendorNameInput.getText().toString();
 
-                    // Persist
-                    try (Realm realm = Realm.getDefaultInstance()) {
+                        // Persist
+                        try (Realm realm = Realm.getDefaultInstance()) {
 
-                        realm.beginTransaction();
-                        Receipt receiptToAdd = realm.createObject(Receipt.class, receiptId);
-                        receiptToAdd.setTransactionTime(new Date());
-                        receiptToAdd.setAmount(statedPrice);
-                        receiptToAdd.setVendor(statedVendorName);
-                        receiptToAdd.setTransactionTime(statedCalendar.getTime());
-                        realm.commitTransaction();
+                            realm.beginTransaction();
+                            Receipt receiptToAdd = realm.createObject(Receipt.class, receiptId);
+                            receiptToAdd.setTransactionTime(new Date());
+                            receiptToAdd.setAmount(statedPrice);
+                            receiptToAdd.setVendor(statedVendorName);
+                            receiptToAdd.setTransactionTime(statedCalendar.getTime());
+                            realm.commitTransaction();
 
-                        // Go back to previous activity
-                        UIService.finishActivity(AddOrEditReceiptActivity.this,true);
+                            // Go back to previous activity
+                            UIService.finishActivity(AddOrEditReceiptActivity.this,true);
+                        }
                     }
 
-                    // Go back to previous activity & indicate that something failed
-                    UIService.finishActivity(AddOrEditReceiptActivity.this,false);
                 }
             });
 
         } else if (activityAction == ACTIVITY_ACTION_EDIT) {
 
             actionBar.setTitle("Edit Receipt");
-            //        // prefill all fields
-            //        // revise current entry
-            //        // Delete button actually deletes from realm
+            priceInput.setText(String.format("%.2f", statedPrice));
+            vendorNameInput.setText(statedVendorName);
+
+            submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if(validateInputsOrShowError()) {
+                        statedPrice = Double.valueOf(priceInput.getText().toString());
+                        statedVendorName = vendorNameInput.getText().toString();
+
+                        // Persist
+                        try (Realm realm = Realm.getDefaultInstance()) {
+
+                            realm.beginTransaction();
+                            receiptIfEditing.setAmount(statedPrice);
+                            receiptIfEditing.setVendor(statedVendorName);
+                            receiptIfEditing.setTransactionTime(statedCalendar.getTime());
+                            realm.commitTransaction();
+
+                            // Go back to previous activity
+                            UIService.finishActivity(AddOrEditReceiptActivity.this,true);
+                        }
+                    }
+
+                }
+            });
 
         } else {
             Log.e(LOGTAG, "Activity action identifier was not valid");
@@ -216,6 +250,30 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         }
 
     }
-    
+
+    /**
+     * Returns true if everything is OK
+     */
+    private boolean validateInputsOrShowError() {
+        boolean error = false;
+        if (priceInput.getText().toString().isEmpty()) {
+            // TODO extract to string resource
+            priceInputLayout.setErrorEnabled(true);
+            priceInputLayout.setError("Please enter a price");
+            error = true;
+        } else {
+            priceInputLayout.setError(null);
+            priceInputLayout.setErrorEnabled(false);
+        }
+        if (vendorNameInput.getText().toString().isEmpty()) {
+            vendorNameInputLayout.setErrorEnabled(true);
+            vendorNameInputLayout.setError("Please enter a vendor");
+            error = true;
+        } else {
+            vendorNameInputLayout.setErrorEnabled(false);
+            vendorNameInputLayout.setError(null);
+        }
+        return !error;
+    }
 
 }

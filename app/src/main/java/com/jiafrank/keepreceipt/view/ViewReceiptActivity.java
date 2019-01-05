@@ -1,16 +1,25 @@
 package com.jiafrank.keepreceipt.view;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import io.realm.Realm;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.jiafrank.keepreceipt.Constants;
+import com.jiafrank.keepreceipt.FullscreenImageActivity;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
@@ -19,7 +28,13 @@ import com.jiafrank.keepreceipt.service.UIService;
 
 import java.util.Date;
 
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
+import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.ADD_NEW_RECEIPT;
+import static com.jiafrank.keepreceipt.Constants.EDIT_RECEIPT;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
+import static com.jiafrank.keepreceipt.service.UIService.DISMISS_ALERT_DIALOG_LISTENER;
 
 public class ViewReceiptActivity extends AppCompatActivity {
 
@@ -37,6 +52,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
     private TextView transactionDateView;
     private ImageView receiptImageView;
     private ActionBar actionBar;
+    private ImageButton expandImageButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +82,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
         amountView = findViewById(R.id.statedAmountLabel);
         transactionDateView = findViewById(R.id.statedDateLabel);
         receiptImageView = findViewById(R.id.largeReceiptImageView);
+        expandImageButton = findViewById(R.id.expandImageButton);
         setUpUI();
     }
 
@@ -80,7 +97,38 @@ public class ViewReceiptActivity extends AppCompatActivity {
         edit.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                // Launch into new activity
+                Intent editReceiptIntent = new Intent(ViewReceiptActivity.this, AddOrEditReceiptActivity.class);
+                editReceiptIntent.putExtra(ID_STRING_INTENT_NAME, receipt.getReceiptId());
+                editReceiptIntent.putExtra(ACTIVITY_ACTION_INTENT_NAME, ACTIVITY_ACTION_EDIT);
+                startActivityForResult(editReceiptIntent, EDIT_RECEIPT);
 
+                return true;
+            }
+        });
+
+        delete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                final AlertDialog.OnClickListener positiveDialogListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        try (Realm realm = Realm.getDefaultInstance()) {
+                            realm.beginTransaction();
+                            receipt.deleteFromRealm();
+                            realm.commitTransaction();
+                        }
+                        UIService.finishActivity(ViewReceiptActivity.this, true);
+                    }
+                };
+
+                // TODO extract as string resources
+                UIService.getAlertDialog(ViewReceiptActivity.this, "Delete Receipt",
+                        "Are you sure you want to delete this receipt?",
+                        "Yes", positiveDialogListener,
+                        "No", DISMISS_ALERT_DIALOG_LISTENER).show();
 
                 return true;
             }
@@ -92,11 +140,27 @@ public class ViewReceiptActivity extends AppCompatActivity {
     private void setUpUI() {
 
         actionBar.setTitle("Receipt");
-        receiptImageView.setImageBitmap(imageService.getImageFile(receipt.getReceiptId(), this, 0, 0));
+        Glide.with(this)
+                .load(ImageService.getImageFile(receipt.getReceiptId(), this))
+                .apply(RequestOptions.centerCropTransform())
+                .into(receiptImageView);
         vendorNameView.setText(receipt.getVendor());
         amountView.setText(TextFormatService.getFormattedCurrencyString(receipt.getAmount()));
         transactionDateView.setText(TextFormatService.getFormattedStringFromDate(receipt.getTransactionTime(), true));
+        expandImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent fullScreenImageIntent = new Intent(ViewReceiptActivity.this, FullscreenImageActivity.class);
+                fullScreenImageIntent.putExtra(Constants.ID_STRING_INTENT_NAME, receipt.getReceiptId());
+                startActivity(fullScreenImageIntent);
+            }
+        });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        setUpUI();
     }
 
 }

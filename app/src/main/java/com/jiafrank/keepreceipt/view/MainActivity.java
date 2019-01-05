@@ -3,15 +3,20 @@ package com.jiafrank.keepreceipt.view;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +31,10 @@ import com.jiafrank.keepreceipt.view.adapter.ReceiptListAdapter;
 import java.io.File;
 import java.io.IOException;
 
+import io.realm.Case;
 import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
@@ -41,34 +49,39 @@ public class MainActivity extends AppCompatActivity {
     // TODO extract all the strings used here as static variables
     private static final String LOGTAG = "MainActivity";
 
-    private Realm realm;
-    private ImageService imageService = new ImageService();
-
     // Gets passed to AddOrEditReceiptActivity
     private String newPhotoId;
 
     // UI Elements
+    private ActionBar actionBar;
     private RecyclerView recyclerView;
     private FloatingActionButton addItemButton;
 
+    // State variables
+    private Realm realm;
+    private RealmResults<Receipt> receiptsToShow; // Could change depending on query
+    private ReceiptListAdapter receiptListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize views
+        actionBar = getSupportActionBar();
+        recyclerView = findViewById(R.id.recyclerView);
+        addItemButton = findViewById(R.id.addItemButton);
+
+        // Recyclerview performance fixes
+        recyclerView.setHasFixedSize(true);
+
         initializeRealm();
+
+        // Initialize the receipt variables
+        receiptsToShow = getResultsForQuery("");
+
         setUpUI();
 
-    }
-
-    /**
-     * Need to close the realm when the view gets destroyed
-     */
-    @Override
-    protected void onDestroy() {
-        realm.close();
-        super.onDestroy();
     }
 
     /**
@@ -81,24 +94,37 @@ public class MainActivity extends AppCompatActivity {
         // Set up search
         MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Enter a vendor, date, or amount");
+        searchView.setQueryHint("Enter a vendor or amount");
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-
-                Log.e(LOGTAG, "Search Expand");
+                // No need to do anything here
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-
-                Log.e(LOGTAG, "Search Collapse");
+                searchView.setQuery("", true);
                 return true;
             }
         });
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                receiptsToShow = getResultsForQuery(newText);
+                if (receiptListAdapter != null) {
+                    receiptListAdapter.setReceipts(receiptsToShow);
+                }
+                return true;
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -109,11 +135,9 @@ public class MainActivity extends AppCompatActivity {
     private void setUpUI() {
 
         // Set up title
-        ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle("Receipts");
 
         // Set up action button
-        addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,9 +146,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set up recycler
-        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ReceiptListAdapter receiptListAdapter = new ReceiptListAdapter(realm.where(Receipt.class).findAll().sort("transactionTime", Sort.DESCENDING));
+        receiptListAdapter = new ReceiptListAdapter(receiptsToShow);
         recyclerView.setAdapter(receiptListAdapter);
     }
 
@@ -140,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             // Create a photo file to save the new photo
             File photoFile = null;
             try {
-                photoFile = imageService.getNewImageFile(this);
+                photoFile = ImageService.getNewImageFile(this);
                 newPhotoId = photoFile.getName();
             } catch (IOException ex) {
                 Log.e(LOGTAG, "Could not make a new photo file");
@@ -184,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i(LOGTAG, "Add New Receipt Failed");
             Snackbar.make(findViewById(R.id.mainActivityRootView), "Something Went Wrong", Snackbar.LENGTH_SHORT);
 
-        } else if (requestCode == REQUEST_IMAGE_CAPTURE){
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
             Log.d(LOGTAG, "Take image cancelled");
 
@@ -200,6 +223,30 @@ public class MainActivity extends AppCompatActivity {
         Realm.init(this);
         Realm.setDefaultConfiguration(RealmConfig.getDefaultDatabaseConfig());
         realm = Realm.getDefaultInstance();
+    }
+
+    private RealmResults<Receipt> getResultsForQuery(String query) {
+
+        // TODO date sorting
+
+        RealmQuery<Receipt> receiptRealmQuery = realm.where(Receipt.class).sort("transactionTime", Sort.DESCENDING);
+        if (query != null & !query.isEmpty()) {
+            receiptRealmQuery =  receiptRealmQuery
+                    .contains("vendor", query, Case.INSENSITIVE);
+
+            Double possibleAmount = null;
+            try {
+                possibleAmount = Double.valueOf(query.replace("$", ""));
+            } catch (NumberFormatException e) {
+                // Entered string is not a number
+            }
+            if (possibleAmount != null) {
+                receiptRealmQuery = receiptRealmQuery.or().equalTo("amount", possibleAmount);
+            }
+
+            return receiptRealmQuery.findAll();
+        }
+        return receiptRealmQuery.findAll();
     }
 
 }
