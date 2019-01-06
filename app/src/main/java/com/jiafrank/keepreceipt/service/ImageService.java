@@ -15,16 +15,20 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
+import it.sephiroth.android.library.exif2.ExifInterface;
+
+import static com.jiafrank.keepreceipt.Constants.FILE_DATE_FORMAT_PATTERN;
+import static com.jiafrank.keepreceipt.Constants.REQ_IMG_SIZE;
 
 public class ImageService {
-
-    // Used to save files
-    public static String DATE_FORMAT_PATTERN = "yyyyMMdd_HHmmss";
 
     /**
      * Create a new image file for which to save the picture
@@ -32,7 +36,7 @@ public class ImageService {
     public static File getNewImageFile(Context context) throws IOException {
 
         // Image file name is same as ID - categorized by date created
-        String imageFileName = new SimpleDateFormat(DATE_FORMAT_PATTERN).format(new Date());
+        String imageFileName = new SimpleDateFormat(FILE_DATE_FORMAT_PATTERN).format(new Date());
 
         // Get INTERNAL storage directory - scope limited to app
         File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -50,6 +54,60 @@ public class ImageService {
         String storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath().concat("/");
         return new File(storageDirectory.concat(imageFileName));
     }
+
+    public static void compressAndSaveImage(File file) {
+        try {
+
+            ExifInterface originalExif = new ExifInterface();
+            originalExif.readExif(file.getAbsolutePath(), ExifInterface.Options.OPTION_ALL);
+
+            // Get amount to scale
+            BitmapFactory.Options scalingOptions = new BitmapFactory.Options();
+            scalingOptions.inSampleSize = calculateInSampleSize(scalingOptions);
+
+            // Get scaled version of bitmap
+            InputStream inputStream = new FileInputStream(file);
+            Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, scalingOptions);
+            inputStream.close();
+
+            // Overwrite the file (create the file if it somehow does not exist)
+            file.createNewFile();
+            FileOutputStream outputStream = new FileOutputStream(file);
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 50 , outputStream);
+
+
+            originalExif.writeExif(file.getAbsolutePath());
+
+        } catch (Exception e) {
+            Log.e("ImageService", "Image compression failed", e);
+        }
+    }
+
+    /**
+     * From Android docs
+     */
+    private static int calculateInSampleSize (BitmapFactory.Options options) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > REQ_IMG_SIZE || width > REQ_IMG_SIZE) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= REQ_IMG_SIZE
+                    && (halfWidth / inSampleSize) >= REQ_IMG_SIZE) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
 
     public static void runTextRecognition(Bitmap inputImage) {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(inputImage);

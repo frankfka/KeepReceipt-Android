@@ -25,6 +25,7 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.service.UIService;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -128,6 +129,12 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             final AlertDialog.OnClickListener positiveDialogListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        // We want to delete the original image file if the user cancells
+                        ImageService.getImageFile(receiptId, AddOrEditReceiptActivity.this).delete();
+                    } catch (Exception e) {
+                        Log.e(LOGTAG, "User cancelled receipt creation, but image could not be deleted.", e);
+                    }
                     UIService.finishActivity(AddOrEditReceiptActivity.this,false);
                 }
             };
@@ -189,6 +196,9 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                     if(validateInputsOrShowError()) {
                         statedPrice = Double.valueOf(priceInput.getText().toString());
                         statedVendorName = vendorNameInput.getText().toString();
+
+                        // If we decide to save, overwrite with a smaller version of the image so we don't take up a lot of space
+                        ImageService.compressAndSaveImage(ImageService.getImageFile(receiptId, AddOrEditReceiptActivity.this));
 
                         // Persist
                         try (Realm realm = Realm.getDefaultInstance()) {

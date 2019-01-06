@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private RecyclerView recyclerView;
     private FloatingActionButton addItemButton;
+    private TextView noReceiptsHintTextView;
 
     // State variables
     private Realm realm;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         actionBar = getSupportActionBar();
         recyclerView = findViewById(R.id.recyclerView);
         addItemButton = findViewById(R.id.addItemButton);
+        noReceiptsHintTextView = findViewById(R.id.noReceiptsHintTextView);
 
         // Recyclerview performance fixes
         recyclerView.setHasFixedSize(true);
@@ -147,6 +150,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         receiptListAdapter = new ReceiptListAdapter(receiptsToShow);
         recyclerView.setAdapter(receiptListAdapter);
+
+        // Just show help text if no receipts are available
+        if (receiptsToShow.isEmpty()) {
+            showReceiptListOrHint(false);
+        } else {
+            showReceiptListOrHint(true);
+        }
+
+    }
+
+    private void showReceiptListOrHint(boolean recyclerVisible) {
+        if (recyclerVisible) {
+            recyclerView.setVisibility(View.VISIBLE);
+            noReceiptsHintTextView.setVisibility(View.GONE);
+        } else {
+            recyclerView.setVisibility(View.GONE);
+            noReceiptsHintTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -198,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
 
         } else if (requestCode == ADD_NEW_RECEIPT && resultCode == RESULT_OK) {
 
+            // TODO to get rid of help text if nothing exists, there should be a a better way though
+            if (recyclerView.getVisibility() == View.GONE) {
+                showReceiptListOrHint(true);
+            }
             Log.d(LOGTAG, "Add New Receipt Successful");
 
         } else if (requestCode == ADD_NEW_RECEIPT) {

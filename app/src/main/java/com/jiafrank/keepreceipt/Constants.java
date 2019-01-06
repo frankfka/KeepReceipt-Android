@@ -13,5 +13,7 @@ public class Constants {
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int ADD_NEW_RECEIPT = 2;
     public static final int EDIT_RECEIPT = 3;
-
+    // Image processing values
+    public static final int REQ_IMG_SIZE = 500;
+    public static final String FILE_DATE_FORMAT_PATTERN = "yyyyMMdd_HHmmss";
 }

@@ -121,11 +121,18 @@ public class ViewReceiptActivity extends AppCompatActivity {
                             receipt.deleteFromRealm();
                             realm.commitTransaction();
                         }
+
+                        // Delete image file
+                        try {
+                            ImageService.getImageFile(receipt.getReceiptId(), ViewReceiptActivity.this).delete();
+                        } catch (Exception e) {
+                            Log.e(LOGTAG, "Could not delete the image file", e);
+                        }
+
                         UIService.finishActivity(ViewReceiptActivity.this, true);
                     }
                 };
 
-                // TODO extract as string resources
                 UIService.getAlertDialog(ViewReceiptActivity.this, getString(R.string.delete_receipt_title),
                         getString(R.string.delete_receipt_text),
                         getString(R.string.positive_dialog_text), positiveDialogListener,
@@ -145,7 +152,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
         /**
          * Testing google vision
          */
-        ImageService.runTextRecognition(BitmapFactory.decodeFile(ImageService.getImageFile(receipt.getReceiptId(), this).getAbsolutePath()));
+//        ImageService.runTextRecognition(BitmapFactory.decodeFile(ImageService.getImageFile(receipt.getReceiptId(), this).getAbsolutePath()));
 
         Glide.with(this)
                 .load(ImageService.getImageFile(receipt.getReceiptId(), this))
