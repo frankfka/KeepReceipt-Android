@@ -7,6 +7,7 @@ import io.realm.Realm;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -125,8 +126,8 @@ public class ViewReceiptActivity extends AppCompatActivity {
                 };
 
                 // TODO extract as string resources
-                UIService.getAlertDialog(ViewReceiptActivity.this, "Delete Receipt",
-                        "Are you sure you want to delete this receipt?",
+                UIService.getAlertDialog(ViewReceiptActivity.this, getString(R.string.delete_receipt_title),
+                        getString(R.string.delete_receipt_text),
                         getString(R.string.positive_dialog_text), positiveDialogListener,
                         getString(R.string.negative_dialog_text), DISMISS_ALERT_DIALOG_LISTENER).show();
 
@@ -139,7 +140,13 @@ public class ViewReceiptActivity extends AppCompatActivity {
 
     private void setUpUI() {
 
-        actionBar.setTitle("Receipt");
+        actionBar.setTitle(getString(R.string.view_receipt_activity_actionbar_title));
+
+        /**
+         * Testing google vision
+         */
+        ImageService.runTextRecognition(BitmapFactory.decodeFile(ImageService.getImageFile(receipt.getReceiptId(), this).getAbsolutePath()));
+
         Glide.with(this)
                 .load(ImageService.getImageFile(receipt.getReceiptId(), this))
                 .apply(RequestOptions.centerCropTransform())

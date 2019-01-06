@@ -15,6 +15,7 @@
     <string name="main_activity_actionbar_title">Receipts</string>
     <string name="add_new_receipt_actionbar_title">Add New Receipt</string>
     <string name="edit_receipt_actionbar_title">Edit Receipt</string>
+    <string name="view_receipt_activity_actionbar_title">Receipt</string>
 
     <!--MainActivity-->
     <string name="main_activity_search_hint">Enter a vendor or amount</string>
@@ -31,6 +32,8 @@
     <string name="action_edit_receipt">Edit</string>
     <string name="cancel_add_receipt_title">Cancel Add Receipt</string>
     <string name="cancel_add_receipt_message">Are you sure you want to cancel?</string>
+    <string name="delete_receipt_title">Delete Receipt</string>
+    <string name="delete_receipt_text">Are you sure you want to delete this receipt?</string>
     <string name="positive_dialog_text">Yes</string>
     <string name="negative_dialog_text">No</string>
     <string name="price_input_error_message">Please enter a price</string>

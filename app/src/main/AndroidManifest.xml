@@ -35,6 +35,11 @@
 
         <activity android:name=".view.ViewReceiptActivity" />
         <activity android:name=".FullscreenImageActivity"></activity>
+
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="ocr" />
+
     </application>
 
 </manifest>
