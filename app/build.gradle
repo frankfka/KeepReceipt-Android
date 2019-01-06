@@ -40,7 +40,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-ml-vision:18.0.2'
     // Exif
-    implementation 'it.sephiroth.android.exif:library:+'
+    implementation 'it.sephiroth.android.exif:library:1.0.1'
 
 }
 
