@@ -61,8 +61,6 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private String statedVendorName = "";
     private Calendar statedCalendar = Calendar.getInstance(Locale.getDefault());
 
-    // TODO VALIDATION ON FIELDS
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,11 +136,10 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
 
-                    // TODO extract as string resources
-                    UIService.getAlertDialog(AddOrEditReceiptActivity.this, "Cancel Add Receipt",
-                            "Are you sure you want to cancel?",
-                            "Yes", positiveDialogListener,
-                            "No", DISMISS_ALERT_DIALOG_LISTENER).show();
+                    UIService.getAlertDialog(AddOrEditReceiptActivity.this, getString(R.string.cancel_add_receipt_title),
+                            getString(R.string.cancel_add_receipt_message),
+                            getString(R.string.positive_dialog_text), positiveDialogListener,
+                            getString(R.string.negative_dialog_text), DISMISS_ALERT_DIALOG_LISTENER).show();
 
                     return true;
                 }
@@ -183,8 +180,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         // Now perform action specific activities
         if (activityAction == ACTIVITY_ACTION_CREATE) {
 
-            //TODO extract as string resource
-            actionBar.setTitle("Add New Receipt");
+            actionBar.setTitle(getString(R.string.add_new_receipt_actionbar_title));
             // Persist new receipt on button click
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -215,7 +211,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
 
         } else if (activityAction == ACTIVITY_ACTION_EDIT) {
 
-            actionBar.setTitle("Edit Receipt");
+            actionBar.setTitle(getString(R.string.edit_receipt_actionbar_title));
             priceInput.setText(String.format("%.2f", statedPrice));
             vendorNameInput.setText(statedVendorName);
 
@@ -257,9 +253,8 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private boolean validateInputsOrShowError() {
         boolean error = false;
         if (priceInput.getText().toString().isEmpty()) {
-            // TODO extract to string resource
             priceInputLayout.setErrorEnabled(true);
-            priceInputLayout.setError("Please enter a price");
+            priceInputLayout.setError(getString(R.string.price_input_error_message));
             error = true;
         } else {
             priceInputLayout.setError(null);
@@ -267,7 +262,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         }
         if (vendorNameInput.getText().toString().isEmpty()) {
             vendorNameInputLayout.setErrorEnabled(true);
-            vendorNameInputLayout.setError("Please enter a vendor");
+            vendorNameInputLayout.setError(getString(R.string.vendor_input_error_message));
             error = true;
         } else {
             vendorNameInputLayout.setErrorEnabled(false);

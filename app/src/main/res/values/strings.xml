@@ -11,6 +11,14 @@
     <string name="action_edit_multiple_name">Edit Multiple</string>
     <string name="action_filter_name">Filter</string>
 
+    <!--Activity Actionbar Titles-->
+    <string name="main_activity_actionbar_title">Receipts</string>
+    <string name="add_new_receipt_actionbar_title">Add New Receipt</string>
+    <string name="edit_receipt_actionbar_title">Edit Receipt</string>
+
+    <!--MainActivity-->
+    <string name="main_activity_search_hint">Enter a vendor or amount</string>
+
     <!--Add/Edit Receipt-->
     <string name="edit_hint_vendor">Vendor</string>
     <string name="edit_receipt_price">Price</string>
@@ -21,5 +29,20 @@
     <string name="view_receipt_date_label">Date:</string>
     <string name="view_receipt_amount_label">Amount:</string>
     <string name="action_edit_receipt">Edit</string>
+    <string name="cancel_add_receipt_title">Cancel Add Receipt</string>
+    <string name="cancel_add_receipt_message">Are you sure you want to cancel?</string>
+    <string name="positive_dialog_text">Yes</string>
+    <string name="negative_dialog_text">No</string>
+    <string name="price_input_error_message">Please enter a price</string>
+    <string name="vendor_input_error_message">Please enter a vendor</string>
+
+    <!--Realm Field Names-->
+    <string name="REALM_receipt_amount">amount</string>
+    <string name="REALM_receipt_vendor">vendor</string>
+    <string name="REALM_receipt_time">transactionTime</string>
+    <string name="REALM_receipt_id">receiptId</string>
+
+    <!--Misc UI-->
+    <string name="error_snackbar">Something Went Wrong</string>
 
 </resources>

@@ -45,8 +45,6 @@ import static com.jiafrank.keepreceipt.Constants.REQUEST_IMAGE_CAPTURE;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    // TODO extract all the strings used here as static variables
     private static final String LOGTAG = "MainActivity";
 
     // Gets passed to AddOrEditReceiptActivity
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up search
         MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Enter a vendor or amount");
+        searchView.setQueryHint(getString(R.string.main_activity_search_hint));
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -135,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     private void setUpUI() {
 
         // Set up title
-        actionBar.setTitle("Receipts");
+        actionBar.setTitle(getString(R.string.main_activity_actionbar_title));
 
         // Set up action button
         addItemButton.setOnClickListener(new View.OnClickListener() {
@@ -167,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                 newPhotoId = photoFile.getName();
             } catch (IOException ex) {
                 Log.e(LOGTAG, "Could not make a new photo file");
-                Snackbar.make(findViewById(R.id.mainActivityRootView), "Something Went Wrong", Snackbar.LENGTH_SHORT);
+                Snackbar.make(findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
             }
 
             // Continue only if the File was successfully created
@@ -205,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == ADD_NEW_RECEIPT) {
 
             Log.i(LOGTAG, "Add New Receipt Failed");
-            Snackbar.make(findViewById(R.id.mainActivityRootView), "Something Went Wrong", Snackbar.LENGTH_SHORT);
+            Snackbar.make(findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
 
         } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
@@ -229,10 +227,10 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO date sorting
 
-        RealmQuery<Receipt> receiptRealmQuery = realm.where(Receipt.class).sort("transactionTime", Sort.DESCENDING);
+        RealmQuery<Receipt> receiptRealmQuery = realm.where(Receipt.class).sort(getString(R.string.REALM_receipt_time), Sort.DESCENDING);
         if (query != null & !query.isEmpty()) {
             receiptRealmQuery =  receiptRealmQuery
-                    .contains("vendor", query, Case.INSENSITIVE);
+                    .contains(getString(R.string.REALM_receipt_vendor), query, Case.INSENSITIVE);
 
             Double possibleAmount = null;
             try {
@@ -241,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 // Entered string is not a number
             }
             if (possibleAmount != null) {
-                receiptRealmQuery = receiptRealmQuery.or().equalTo("amount", possibleAmount);
+                receiptRealmQuery = receiptRealmQuery.or().equalTo(getString(R.string.REALM_receipt_amount), possibleAmount);
             }
 
             return receiptRealmQuery.findAll();

@@ -64,7 +64,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
         // Check if all the correct parameters were passed
         if (null != possiblyNullId) {
             try (Realm realm = Realm.getDefaultInstance()) {
-                receipt = realm.where(Receipt.class).equalTo("receiptId", possiblyNullId).findFirst();
+                receipt = realm.where(Receipt.class).equalTo(getString(R.string.REALM_receipt_id), possiblyNullId).findFirst();
             }
             if (null == receipt) {
                 Log.e(LOGTAG, "Could not find a receipt object with the ID ".concat(possiblyNullId));
@@ -127,8 +127,8 @@ public class ViewReceiptActivity extends AppCompatActivity {
                 // TODO extract as string resources
                 UIService.getAlertDialog(ViewReceiptActivity.this, "Delete Receipt",
                         "Are you sure you want to delete this receipt?",
-                        "Yes", positiveDialogListener,
-                        "No", DISMISS_ALERT_DIALOG_LISTENER).show();
+                        getString(R.string.positive_dialog_text), positiveDialogListener,
+                        getString(R.string.negative_dialog_text), DISMISS_ALERT_DIALOG_LISTENER).show();
 
                 return true;
             }
