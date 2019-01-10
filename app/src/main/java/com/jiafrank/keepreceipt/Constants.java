@@ -15,5 +15,5 @@ public class Constants {
     public static final int EDIT_RECEIPT = 3;
     // Image processing values
     public static final int REQ_IMG_SIZE = 500;
-    public static final String FILE_DATE_FORMAT_PATTERN = "yyyyMMdd_HHmmss";
+    public static final String FILE_DATE_FORMAT_PATTERN = "yyyyMMdd_HHmmss_SSSS";
 }
