@@ -48,5 +48,7 @@
     <!--Misc UI-->
     <string name="error_snackbar">Something Went Wrong</string>
     <string name="no_receipts_hint">No receipts have been added yet.\n\nUse KeepReceipt to easily digitalize and track your purchases.</string>
+    <string name="edit_receipt_category">Category</string>
+    <string name="no_categories_hint_text">No categories have been added yet.  Add a category to start categorizing your receipts</string>
 
 </resources>

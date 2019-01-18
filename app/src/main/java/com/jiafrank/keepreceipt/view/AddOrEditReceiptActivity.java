@@ -20,6 +20,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
@@ -53,6 +54,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private TextInputEditText priceInput;
     private TextInputLayout priceInputLayout;
     private TextInputEditText dateInput;
+    private TextInputEditText categoryInput;
     private Button submitButton;
     private ImageView receiptImageView;
     private ActionBar actionBar;
@@ -61,6 +63,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private double statedPrice;
     private String statedVendorName = "";
     private Calendar statedCalendar = Calendar.getInstance(Locale.getDefault());
+    private Category statedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         priceInput = findViewById(R.id.receiptPriceInput);
         priceInputLayout = findViewById(R.id.receiptPriceInputLayout);
         dateInput = findViewById(R.id.receiptDateInput);
+        categoryInput = findViewById(R.id.receiptCategoryInput);
         submitButton = findViewById(R.id.submit_button);
         receiptImageView = findViewById(R.id.largeReceiptImageView);
         setUpUI();
@@ -164,6 +168,10 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                 .load(ImageService.getImageFile(receiptId, this))
                 .apply(RequestOptions.centerCropTransform())
                 .into(receiptImageView);
+
+        /**
+         * Date Input
+         */
         // Show stated date ( will be current date for create action )
         dateInput.setText(TextFormatService.getFormattedStringFromDate(statedCalendar.getTime(), true));
         // Initialize a date picker listener
@@ -178,9 +186,19 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         dateInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 new DatePickerDialog(AddOrEditReceiptActivity.this, onDateSetListener,
                         statedCalendar.get(Calendar.YEAR), statedCalendar.get(Calendar.MONTH), statedCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+        /**
+         * Category input
+         */
+        categoryInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start new activity to pick category
+//                startActivityForResult();
             }
         });
 
@@ -279,6 +297,13 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             vendorNameInputLayout.setError(null);
         }
         return !error;
+    }
+
+    /**
+     * Return None if no category selected, else returns the category name
+     */
+    private String getSelectedCategoryName() {
+        return statedCategory == null ? "None" : statedCategory.getName();
     }
 
 }
