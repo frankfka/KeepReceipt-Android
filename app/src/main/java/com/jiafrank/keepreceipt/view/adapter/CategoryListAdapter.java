@@ -2,6 +2,7 @@ package com.jiafrank.keepreceipt.view.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,18 +24,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import lombok.Getter;
+import lombok.Setter;
 
 public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapter.CategoryItemViewHolder> {
+
+    private static String LOGTAG = "CategoryListAdapter";
 
     // The data to display
     private RealmResults<Category> categories;
     private boolean isEditing;
+    @Getter
+    @Setter
     private Category selectedCategory;
 
     /**
      * This adapter takes in RealmResults containing a set of categories to display
      */
-    public CategoryListAdapter(RealmResults<Category> categories, boolean isEditing, Category selectedCategory) {
+    public CategoryListAdapter(RealmResults<Category> categories, boolean isEditing, final Category selectedCategory) {
         this.selectedCategory = selectedCategory;
         this.categories = categories;
         this.isEditing = isEditing;
@@ -55,6 +62,11 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
 
     @Override
     public void onBindViewHolder(final CategoryItemViewHolder holder, int position) {
+
+        // This invalidates the currently selected category if it was deleted
+        if (null != selectedCategory && !selectedCategory.isValid()) {
+            setSelectedCategory(null);
+        }
 
         // Get References to UI elements
         TextView categoryName = holder.rootViewContainer.findViewById(R.id.categoryNameTextView);
@@ -79,10 +91,14 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
                 public void onClick(View v) {
                     // Delete from realm
                     try (Realm realm = Realm.getDefaultInstance()) {
+                        realm.beginTransaction();
                         category.deleteFromRealm();
+                        realm.commitTransaction();
                     }
                 }
             });
+
+            // TODO validation through both an UNDO button and a dialog
 
         } else {
             // We're just viewing/selecting categories
@@ -90,7 +106,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             // Load up UI
             deleteCategoryButton.setVisibility(View.GONE);
             categoryName.setText(category.getName());
-            if(null != selectedCategory && selectedCategory.equals(category)) {
+            if(category.equals(selectedCategory)) {
                 selectedCheckmark.setVisibility(View.VISIBLE);
             } else {
                 selectedCheckmark.setVisibility(View.GONE);
@@ -100,8 +116,15 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             holder.rootViewContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    selectedCategory = category;
+
+                    // Toggle selection of category, then reload data
+                    if (category.equals(selectedCategory)) {
+                        selectedCategory = null;
+                    } else {
+                        selectedCategory = category;
+                    }
                     notifyDataSetChanged();
+
                 }
             });
 
@@ -117,7 +140,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
     @Override
     public CategoryListAdapter.CategoryItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Create each list item based on receipt_list_item
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.receipt_list_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_list_item, parent, false);
         CategoryItemViewHolder vh = new CategoryItemViewHolder(v);
         return vh;
     }

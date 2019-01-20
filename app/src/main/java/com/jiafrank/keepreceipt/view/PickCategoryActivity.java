@@ -13,17 +13,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Category;
+import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.view.adapter.CategoryListAdapter;
+import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
+
+import java.util.Date;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
+
+import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 
 public class PickCategoryActivity extends AppCompatActivity {
 
@@ -41,11 +49,15 @@ public class PickCategoryActivity extends AppCompatActivity {
     // State variables
     private RealmResults<Category> categories;
     private CategoryListAdapter categoryListAdapter;
+    private Category selectedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pick_category);
+
+        // Get current selected category name (passed from intent)
+        String possiblySelectedCategoryName = getIntent().getStringExtra(SELECTED_CATEGORY_INTENT_NAME);
 
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
@@ -61,6 +73,10 @@ public class PickCategoryActivity extends AppCompatActivity {
         // Initialize the receipt variables
         try(Realm realm = Realm.getDefaultInstance()) {
             categories = realm.where(Category.class).findAll();
+        }
+        // If passed in, this object has to exist
+        if (null != possiblySelectedCategoryName) {
+            selectedCategory = categories.where().equalTo("name", possiblySelectedCategoryName).findAll().first();
         }
 
         setUpUI();
@@ -92,13 +108,13 @@ public class PickCategoryActivity extends AppCompatActivity {
     }
 
     private void setUpUI() {
+
         // Set up title
-        actionBar.setTitle(getString(R.string.main_activity_actionbar_title));
+        actionBar.setTitle("Select Category");
 
         // Set up recycler
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // TODO put in selectedCategory
-        categoryListAdapter = new CategoryListAdapter(categories, false, null);
+        categoryListAdapter = new CategoryListAdapter(categories, false, selectedCategory);
         recyclerView.setAdapter(categoryListAdapter);
 
         // Just show help text if no receipts are available
@@ -153,9 +169,40 @@ public class PickCategoryActivity extends AppCompatActivity {
 
         // Listener to add categories
         addButton.setOnClickListener(new View.OnClickListener() {
+
+            // This shows a dialog to enter & add a new category
             @Override
             public void onClick(View v) {
-                // TODO Show dialog to add
+                new LovelyTextInputDialog(PickCategoryActivity.this)
+                        .setTitle(getString(R.string.add_category_dialog_title))
+                        .setMessage(getString(R.string.add_category_dialog_message))
+                        .setTopColorRes(R.color.colorAccent)
+                        .setIcon(R.drawable.ic_baseline_add)
+                        .setInputFilter(getString(R.string.add_category_error_msg), new LovelyTextInputDialog.TextFilter() {
+                            @Override
+                            public boolean check(String text) {
+                                return !text.isEmpty() && categories.where().equalTo("name", text, Case.INSENSITIVE).findAll().size() == 0;
+                            }
+                        })
+                        .setConfirmButton(android.R.string.ok, new LovelyTextInputDialog.OnTextInputConfirmListener() {
+                            @Override
+                            public void onTextInputConfirmed(String text) {
+
+                                // Create a new category then add it
+                                try (Realm realm = Realm.getDefaultInstance()) {
+                                    realm.beginTransaction();
+                                    realm.createObject(Category.class, text);
+                                    realm.commitTransaction();
+                                }
+                                // Tell adapter to reload data
+                                categoryListAdapter.notifyDataSetChanged();
+
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setConfirmButtonColor(R.color.colorAccent)
+                        .setNegativeButtonColor(R.color.colorAccent)
+                        .show();
             }
         });
 

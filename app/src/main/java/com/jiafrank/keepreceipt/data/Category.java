@@ -18,4 +18,14 @@ public class Category extends RealmObject {
     private String name;
     private RealmList<Receipt> receipts;
 
+    @Override
+    public boolean equals(Object o) {
+        if (null == o) {
+            return false;
+        } else if (!(o instanceof Category)) {
+            return false;
+        }
+        return this.name.equalsIgnoreCase(((Category) o).name);
+    }
+
 }

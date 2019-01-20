@@ -45,14 +45,20 @@
     <string name="REALM_receipt_time">transactionTime</string>
     <string name="REALM_receipt_id">receiptId</string>
 
-    <!--Misc UI-->
-    <string name="error_snackbar">Something Went Wrong</string>
-    <string name="no_receipts_hint">No receipts have been added yet.\n\nUse KeepReceipt to easily digitalize and track your purchases.</string>
+    <!--Category UI-->
     <string name="edit_receipt_category">Category</string>
     <string name="no_categories_hint_text">No categories have been added yet.  Add a category to start categorizing your receipts</string>
     <string name="placeholder_category_name">Groceries</string>
     <string name="action_pick_category_done">Done</string>
     <string name="action_pick_category_cancel">Cancel</string>
     <string name="action_edit_categories">Add/Remove</string>
+    <string name="add_category_dialog_title">Add a Category</string>
+    <string name="add_category_dialog_message">Specify a category name</string>
+    <string name="add_category_error_msg">Please enter a valid category name</string>
+
+
+    <!--Misc UI-->
+    <string name="error_snackbar">Something Went Wrong</string>
+    <string name="no_receipts_hint">No receipts have been added yet.\n\nUse KeepReceipt to easily digitalize and track your purchases.</string>
 
 </resources>

@@ -10,7 +10,7 @@
         hide left, bottom and right side border using white color
         by padding 1 sp bottom side
     -->
-    <item android:top="4sp">
+    <item android:top="1sp">
         <shape android:shape="rectangle">
             <solid android:color="@android:color/white"/>
         </shape>

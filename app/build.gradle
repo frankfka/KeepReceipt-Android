@@ -41,6 +41,8 @@ dependencies {
 //    implementation 'com.google.firebase:firebase-ml-vision:18.0.2'
     // Exif
     implementation 'it.sephiroth.android.exif:library:1.0.1'
+    // Popup dialog
+    implementation 'com.yarolegovich:lovely-dialog:1.1.0'
 
 }
 
