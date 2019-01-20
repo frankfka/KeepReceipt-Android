@@ -7,7 +7,6 @@ import io.realm.Realm;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -20,19 +19,14 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.jiafrank.keepreceipt.Constants;
-import com.jiafrank.keepreceipt.FullscreenImageActivity;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.service.UIService;
 
-import java.util.Date;
-
-import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
-import static com.jiafrank.keepreceipt.Constants.ADD_NEW_RECEIPT;
 import static com.jiafrank.keepreceipt.Constants.EDIT_RECEIPT;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
 import static com.jiafrank.keepreceipt.service.UIService.DISMISS_ALERT_DIALOG_LISTENER;

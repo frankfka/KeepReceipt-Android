@@ -48,6 +48,11 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
         });
     }
 
+    public void setEditing(boolean isEditing) {
+        this.isEditing = isEditing;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(final CategoryItemViewHolder holder, int position) {
 

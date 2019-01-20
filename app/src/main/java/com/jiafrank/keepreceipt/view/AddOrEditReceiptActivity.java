@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +33,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
@@ -97,6 +99,11 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             statedCalendar.setTime(receiptIfEditing.getTransactionTime());
             statedPrice = receiptIfEditing.getAmount();
             statedVendorName = receiptIfEditing.getVendor();
+            // Can only have one category for now
+            RealmResults<Category> parentCategories = receiptIfEditing.getParentCategories();
+            if(!parentCategories.isEmpty()) {
+                statedCategory = parentCategories.first();
+            }
 
         }
 
@@ -194,11 +201,14 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         /**
          * Category input
          */
+        categoryInput.setText(getSelectedCategoryName());
         categoryInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Start new activity to pick category
-//                startActivityForResult();
+                Intent intent = new Intent(AddOrEditReceiptActivity.this, PickCategoryActivity.class);
+                intent.putExtra("selectedCategory", null == statedCategory ? null : statedCategory.getName());
+                startActivityForResult(intent, 0);
             }
         });
 
@@ -227,6 +237,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                             receiptToAdd.setAmount(statedPrice);
                             receiptToAdd.setVendor(statedVendorName);
                             receiptToAdd.setTransactionTime(statedCalendar.getTime());
+                            // TODO change category
                             realm.commitTransaction();
 
                             // Go back to previous activity
@@ -258,6 +269,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                             receiptIfEditing.setAmount(statedPrice);
                             receiptIfEditing.setVendor(statedVendorName);
                             receiptIfEditing.setTransactionTime(statedCalendar.getTime());
+                            // TODO change category
                             realm.commitTransaction();
 
                             // Go back to previous activity

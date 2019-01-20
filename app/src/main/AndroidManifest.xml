@@ -34,7 +34,7 @@
         </provider>
 
         <activity android:name=".view.ViewReceiptActivity" />
-        <activity android:name=".FullscreenImageActivity" />
+        <activity android:name=".view.FullscreenImageActivity" />
         <activity android:name=".view.PickCategoryActivity" />
 
         <meta-data

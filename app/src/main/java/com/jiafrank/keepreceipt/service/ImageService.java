@@ -6,14 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -108,34 +100,34 @@ public class ImageService {
         return inSampleSize;
     }
 
-
-    public static void runTextRecognition(Bitmap inputImage) {
-        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(inputImage);
-        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
-                .getOnDeviceTextRecognizer();
-        Task<FirebaseVisionText> result =
-                detector.processImage(image)
-                        .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-                            @Override
-                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                                for (FirebaseVisionText.TextBlock textBlock:
-                                        firebaseVisionText.getTextBlocks()) {
-                                    for(FirebaseVisionText.Line line: textBlock.getLines()) {
-                                        Log.e("ocr success", line.getText());
-                                    }
-                                }
-                            }
-                        })
-                        .addOnFailureListener(
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.e("ocr", "failed", e);
-                                        // Task failed with an exception
-                                        // ...
-                                    }
-                                });
-    }
+//
+//    public static void runTextRecognition(Bitmap inputImage) {
+//        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(inputImage);
+//        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+//                .getOnDeviceTextRecognizer();
+//        Task<FirebaseVisionText> result =
+//                detector.processImage(image)
+//                        .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+//                            @Override
+//                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
+//                                for (FirebaseVisionText.TextBlock textBlock:
+//                                        firebaseVisionText.getTextBlocks()) {
+//                                    for(FirebaseVisionText.Line line: textBlock.getLines()) {
+//                                        Log.e("ocr success", line.getText());
+//                                    }
+//                                }
+//                            }
+//                        })
+//                        .addOnFailureListener(
+//                                new OnFailureListener() {
+//                                    @Override
+//                                    public void onFailure(@NonNull Exception e) {
+//                                        Log.e("ocr", "failed", e);
+//                                        // Task failed with an exception
+//                                        // ...
+//                                    }
+//                                });
+//    }
 
     /**
      * The following is to get the rotation of the device on returned image bitmap

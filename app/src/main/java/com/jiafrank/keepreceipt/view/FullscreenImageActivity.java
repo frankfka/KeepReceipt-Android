@@ -1,17 +1,16 @@
-package com.jiafrank.keepreceipt;
+package com.jiafrank.keepreceipt.view;
 
 import androidx.appcompat.app.AppCompatActivity;
-import io.realm.Realm;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.jiafrank.keepreceipt.data.Receipt;
+import com.jiafrank.keepreceipt.Constants;
+import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.UIService;
 
