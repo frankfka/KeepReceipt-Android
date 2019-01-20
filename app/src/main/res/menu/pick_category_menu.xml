@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/actionPickCategoryCancel"
+        android:title="@string/action_pick_category_cancel"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/actionPickCategoryDone"
+        android:title="@string/action_pick_category_done"
+        app:showAsAction="always" />
+
+</menu>

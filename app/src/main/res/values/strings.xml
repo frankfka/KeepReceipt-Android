@@ -50,5 +50,8 @@
     <string name="no_receipts_hint">No receipts have been added yet.\n\nUse KeepReceipt to easily digitalize and track your purchases.</string>
     <string name="edit_receipt_category">Category</string>
     <string name="no_categories_hint_text">No categories have been added yet.  Add a category to start categorizing your receipts</string>
+    <string name="placeholder_category_name">Groceries</string>
+    <string name="action_pick_category_done">Done</string>
+    <string name="action_pick_category_cancel">Cancel</string>
 
 </resources>
