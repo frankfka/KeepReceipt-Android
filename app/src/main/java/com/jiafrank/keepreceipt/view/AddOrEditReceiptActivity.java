@@ -39,6 +39,8 @@ import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
+import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 import static com.jiafrank.keepreceipt.service.UIService.DISMISS_ALERT_DIALOG_LISTENER;
 
 public class AddOrEditReceiptActivity extends AppCompatActivity {
@@ -66,6 +68,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
     private String statedVendorName = "";
     private Calendar statedCalendar = Calendar.getInstance(Locale.getDefault());
     private Category statedCategory;
+    private Category previousCategory; // Used to know if a category was changed or not
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +106,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             RealmResults<Category> parentCategories = receiptIfEditing.getParentCategories();
             if(!parentCategories.isEmpty()) {
                 statedCategory = parentCategories.first();
+                previousCategory = parentCategories.first();
             }
 
         }
@@ -168,6 +172,9 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Does all the UI set up for this activity
+     */
     private void setUpUI() {
 
         // Show the receipt image regardless
@@ -207,8 +214,8 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Start new activity to pick category
                 Intent intent = new Intent(AddOrEditReceiptActivity.this, PickCategoryActivity.class);
-                intent.putExtra("selectedCategory", null == statedCategory ? null : statedCategory.getName());
-                startActivityForResult(intent, 0);
+                intent.putExtra(SELECTED_CATEGORY_INTENT_NAME, null == statedCategory ? null : statedCategory.getName());
+                startActivityForResult(intent, PICK_CATEGORY);
             }
         });
 
@@ -237,7 +244,9 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                             receiptToAdd.setAmount(statedPrice);
                             receiptToAdd.setVendor(statedVendorName);
                             receiptToAdd.setTransactionTime(statedCalendar.getTime());
-                            // TODO change category
+                            if (null != statedCategory) {
+                                statedCategory.getReceipts().add(receiptToAdd);
+                            }
                             realm.commitTransaction();
 
                             // Go back to previous activity
@@ -269,7 +278,17 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                             receiptIfEditing.setAmount(statedPrice);
                             receiptIfEditing.setVendor(statedVendorName);
                             receiptIfEditing.setTransactionTime(statedCalendar.getTime());
-                            // TODO change category
+
+                            // Category logic
+                            if (statedCategory != null && previousCategory != null) {
+                                statedCategory.getReceipts().add(receiptIfEditing);
+                                previousCategory.getReceipts().remove(receiptIfEditing);
+                            } else if (statedCategory == null & previousCategory != null) {
+                                previousCategory.getReceipts().remove(receiptIfEditing);
+                            } else if (statedCategory != null && previousCategory == null) {
+                                statedCategory.getReceipts().add(receiptIfEditing);
+                            }
+
                             realm.commitTransaction();
 
                             // Go back to previous activity
@@ -285,6 +304,20 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             UIService.finishActivity(this,false);
         }
 
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_CATEGORY) {
+            String pickedCategory = data.getStringExtra(SELECTED_CATEGORY_INTENT_NAME);
+            if (null == pickedCategory) {
+                statedCategory = null;
+            } else {
+                try (Realm realm = Realm.getDefaultInstance()) {
+                    statedCategory = realm.where(Category.class).equalTo(getString(R.string.REALM_category_name), pickedCategory).findFirst();
+                }
+            }
+            categoryInput.setText(getSelectedCategoryName());
+        }
     }
 
     /**
@@ -315,7 +348,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
      * Return None if no category selected, else returns the category name
      */
     private String getSelectedCategoryName() {
-        return statedCategory == null ? "None" : statedCategory.getName();
+        return statedCategory == null ? getString(R.string.none_category_placeholder) : statedCategory.getName();
     }
 
 }

@@ -1,27 +1,17 @@
 package com.jiafrank.keepreceipt.view;
 
-// TODO
-// Load category list
-// Selection functionality
-// edit mode
-// Add mode
-
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Category;
-import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.view.adapter.CategoryListAdapter;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
-
-import java.util.Date;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +21,7 @@ import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
 import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 
 public class PickCategoryActivity extends AppCompatActivity {
@@ -50,6 +41,7 @@ public class PickCategoryActivity extends AppCompatActivity {
     private RealmResults<Category> categories;
     private CategoryListAdapter categoryListAdapter;
     private Category selectedCategory;
+    private Category pickedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +68,7 @@ public class PickCategoryActivity extends AppCompatActivity {
         }
         // If passed in, this object has to exist
         if (null != possiblySelectedCategoryName) {
-            selectedCategory = categories.where().equalTo("name", possiblySelectedCategoryName).findAll().first();
+            selectedCategory = categories.where().equalTo(getString(R.string.REALM_category_name), possiblySelectedCategoryName).findAll().first();
         }
 
         setUpUI();
@@ -95,13 +87,17 @@ public class PickCategoryActivity extends AppCompatActivity {
 
         // Done button will tell incoming view that something was selected
         doneSelectionButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-
-                Log.e(LOGTAG, "done button pressed");
-
+                pickedCategory = categoryListAdapter.getSelectedCategory();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(SELECTED_CATEGORY_INTENT_NAME, null == pickedCategory ? null : pickedCategory.getName());
+                setResult(PICK_CATEGORY, returnIntent);
+                finish();
                 return true;
             }
+
         });
 
         return super.onCreateOptionsMenu(menu);
@@ -110,7 +106,7 @@ public class PickCategoryActivity extends AppCompatActivity {
     private void setUpUI() {
 
         // Set up title
-        actionBar.setTitle("Select Category");
+        actionBar.setTitle(getString(R.string.select_category_title));
 
         // Set up recycler
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

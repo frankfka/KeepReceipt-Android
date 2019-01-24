@@ -20,7 +20,7 @@
     <!--MainActivity-->
     <string name="main_activity_search_hint">Enter a vendor or amount</string>
 
-    <!--Add/Edit Receipt-->
+    <!--Add/Edit/View Receipt-->
     <string name="edit_hint_vendor">Vendor</string>
     <string name="edit_receipt_price">Price</string>
     <string name="edit_receipt_date">Date</string>
@@ -29,6 +29,7 @@
     <string name="view_receipt_vendor_label">Vendor Name:</string>
     <string name="view_receipt_date_label">Date:</string>
     <string name="view_receipt_amount_label">Amount:</string>
+    <string name="view_receipt_category_label">Category:</string>
     <string name="action_edit_receipt">Edit</string>
     <string name="cancel_add_receipt_title">Cancel Add Receipt</string>
     <string name="cancel_add_receipt_message">Are you sure you want to cancel?</string>
@@ -38,14 +39,17 @@
     <string name="negative_dialog_text">No</string>
     <string name="price_input_error_message">Please enter a price</string>
     <string name="vendor_input_error_message">Please enter a vendor</string>
+    <string name="none_category_placeholder">None</string>
 
     <!--Realm Field Names-->
     <string name="REALM_receipt_amount">amount</string>
     <string name="REALM_receipt_vendor">vendor</string>
     <string name="REALM_receipt_time">transactionTime</string>
     <string name="REALM_receipt_id">receiptId</string>
+    <string name="REALM_category_name">name</string>
 
     <!--Category UI-->
+    <string name="select_category_title">Select Category</string>
     <string name="edit_receipt_category">Category</string>
     <string name="no_categories_hint_text">No categories have been added yet.  Add a category to start categorizing your receipts</string>
     <string name="placeholder_category_name">Groceries</string>
@@ -55,7 +59,6 @@
     <string name="add_category_dialog_title">Add a Category</string>
     <string name="add_category_dialog_message">Specify a category name</string>
     <string name="add_category_error_msg">Please enter a valid category name</string>
-
 
     <!--Misc UI-->
     <string name="error_snackbar">Something Went Wrong</string>

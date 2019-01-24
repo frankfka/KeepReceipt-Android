@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.jiafrank.keepreceipt.Constants;
 import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
@@ -36,15 +37,14 @@ public class ViewReceiptActivity extends AppCompatActivity {
     private static String LOGTAG = "ViewReceiptActivity";
 
     // State variables
-    private Receipt receipt = null;
-
-    // Services
-    private ImageService imageService = new ImageService();
+    private Receipt receipt;
+    private Category receiptCategory;
 
     // UI Elements
     private TextView vendorNameView;
     private TextView amountView;
     private TextView transactionDateView;
+    private TextView categoryView;
     private ImageView receiptImageView;
     private ActionBar actionBar;
     private ImageButton expandImageButton;
@@ -61,10 +61,13 @@ public class ViewReceiptActivity extends AppCompatActivity {
             try (Realm realm = Realm.getDefaultInstance()) {
                 receipt = realm.where(Receipt.class).equalTo(getString(R.string.REALM_receipt_id), possiblyNullId).findFirst();
             }
+
+            // Check for receipt retrieval error
             if (null == receipt) {
                 Log.e(LOGTAG, "Could not find a receipt object with the ID ".concat(possiblyNullId));
                 UIService.finishActivity(this, false);
             }
+
         } else {
             // Go back to previous activity & indicate that something failed
             Log.e(LOGTAG, "Sufficient extras were not provided");
@@ -75,6 +78,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
         actionBar = getSupportActionBar();
         vendorNameView = findViewById(R.id.statedVendorNameLabel);
         amountView = findViewById(R.id.statedAmountLabel);
+        categoryView = findViewById(R.id.statedCategoryLabel);
         transactionDateView = findViewById(R.id.statedDateLabel);
         receiptImageView = findViewById(R.id.largeReceiptImageView);
         expandImageButton = findViewById(R.id.expandImageButton);
@@ -142,6 +146,8 @@ public class ViewReceiptActivity extends AppCompatActivity {
     private void setUpUI() {
 
         actionBar.setTitle(getString(R.string.view_receipt_activity_actionbar_title));
+        // Done every time an edit is saved
+        updateReceiptCategory();
 
         /**
          * Testing google vision
@@ -155,6 +161,7 @@ public class ViewReceiptActivity extends AppCompatActivity {
         vendorNameView.setText(receipt.getVendor());
         amountView.setText(TextFormatService.getFormattedCurrencyString(receipt.getAmount()));
         transactionDateView.setText(TextFormatService.getFormattedStringFromDate(receipt.getTransactionTime(), true));
+        categoryView.setText(getSelectedCategoryName());
         expandImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,6 +176,25 @@ public class ViewReceiptActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         setUpUI();
+    }
+
+    /**
+     * Return None if no category selected, else returns the category name
+     */
+    private String getSelectedCategoryName() {
+        return receiptCategory == null ? getString(R.string.none_category_placeholder) : receiptCategory.getName();
+    }
+
+    /**
+     * Updates the current category for the receipt
+     */
+    private void updateReceiptCategory() {
+        // Get parent category if it exists
+        if (!receipt.getParentCategories().isEmpty()) {
+            receiptCategory = receipt.getParentCategories().first();
+        } else {
+            receiptCategory = null;
+        }
     }
 
 }
