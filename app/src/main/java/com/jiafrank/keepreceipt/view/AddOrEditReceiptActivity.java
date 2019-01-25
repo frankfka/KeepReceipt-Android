@@ -27,7 +27,6 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.service.UIService;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -233,7 +232,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
                         statedVendorName = vendorNameInput.getText().toString();
 
                         // If we decide to save, overwrite with a smaller version of the image so we don't take up a lot of space
-                        ImageService.compressAndSaveImage(ImageService.getImageFile(receiptId, AddOrEditReceiptActivity.this));
+                        ImageService.compressImage(ImageService.getImageFile(receiptId, AddOrEditReceiptActivity.this));
 
                         // Persist
                         try (Realm realm = Realm.getDefaultInstance()) {

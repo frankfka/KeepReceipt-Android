@@ -192,6 +192,7 @@ public class PickCategoryActivity extends AppCompatActivity {
                                 }
                                 // Tell adapter to reload data
                                 categoryListAdapter.notifyDataSetChanged();
+                                showCategoryListOrHint(true);
 
                             }
                         })

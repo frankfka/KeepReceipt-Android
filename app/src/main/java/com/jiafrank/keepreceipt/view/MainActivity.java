@@ -1,12 +1,15 @@
 package com.jiafrank.keepreceipt.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +31,7 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.RealmConfig;
 import com.jiafrank.keepreceipt.view.adapter.ReceiptListAdapter;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +45,10 @@ import io.realm.Sort;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.ADD_NEW_RECEIPT;
+import static com.jiafrank.keepreceipt.Constants.ADD_RECEIPT_CHOICES;
+import static com.jiafrank.keepreceipt.Constants.ADD_RECEIPT_CHOICE_IMPORT;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
-import static com.jiafrank.keepreceipt.Constants.REQUEST_IMAGE_CAPTURE;
+import static com.jiafrank.keepreceipt.Constants.REQUEST_IMAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -142,7 +148,24 @@ public class MainActivity extends AppCompatActivity {
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+
+                // Show option to either import or take a picture
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Add New Receipt")
+                        .setItems(ADD_RECEIPT_CHOICES, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            if(ADD_RECEIPT_CHOICES[which].equals(ADD_RECEIPT_CHOICE_IMPORT)) {
+                                dispatchImportPictureIntent();
+                            } else {
+                                dispatchTakePictureIntent();
+                            }
+
+                            }
+                        });
+
+                builder.show();
+
             }
         });
 
@@ -195,11 +218,21 @@ public class MainActivity extends AppCompatActivity {
                         "com.jiafrank.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE);
             }
-
         }
+    }
 
+    /**
+     * Image Import Functionality
+     */
+    private void dispatchImportPictureIntent() {
+        Intent importPictureIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        // Ensure that there's a gallery activity to handle the intent
+        if (importPictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(importPictureIntent, REQUEST_IMAGE);
+        }
     }
 
     /**
@@ -207,36 +240,61 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 
-            // Launch into new activity
-            Intent addReceiptIntent = new Intent(MainActivity.this, AddOrEditReceiptActivity.class);
-            addReceiptIntent.putExtra(ID_STRING_INTENT_NAME, newPhotoId);
-            addReceiptIntent.putExtra(ACTIVITY_ACTION_INTENT_NAME, ACTIVITY_ACTION_CREATE);
-            startActivityForResult(addReceiptIntent, ADD_NEW_RECEIPT);
+        // Case where we ask for an image
+        if (requestCode == REQUEST_IMAGE && resultCode == RESULT_OK) {
 
-            Log.d(LOGTAG, "Take image successful");
+            try {
 
-        } else if (requestCode == ADD_NEW_RECEIPT && resultCode == RESULT_OK) {
+                Uri photoUri = data.getData();
 
-            // TODO to get rid of help text if nothing exists, there should be a a better way though
+                // photoURI is non-null if we've imported an image
+                if (null != photoUri) {
+                    Bitmap selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+                    newPhotoId = ImageService.saveBitmapToFile(this, selectedImage).getName();
+                }
+
+                // Launch into new activity
+                Intent addReceiptIntent = new Intent(MainActivity.this, AddOrEditReceiptActivity.class);
+                addReceiptIntent.putExtra(ID_STRING_INTENT_NAME, newPhotoId);
+                addReceiptIntent.putExtra(ACTIVITY_ACTION_INTENT_NAME, ACTIVITY_ACTION_CREATE);
+                startActivityForResult(addReceiptIntent, ADD_NEW_RECEIPT);
+
+                Log.d(LOGTAG, "Get image successful");
+
+            } catch (IOException e) {
+
+                Log.e(LOGTAG, "Importing an image was not successful", e);
+
+            }
+
+        }
+
+        // Case where we come back from adding a new receipt
+        else if (requestCode == ADD_NEW_RECEIPT && resultCode == RESULT_OK) {
+
+            // Gets rid of help text if we're adding a first receipt
             if (recyclerView.getVisibility() == View.GONE) {
                 showReceiptListOrHint(true);
             }
             Log.d(LOGTAG, "Add New Receipt Successful");
 
-        } else if (requestCode == ADD_NEW_RECEIPT) {
+        }
+
+        // Error cases
+        else if (requestCode == ADD_NEW_RECEIPT) {
 
             Log.i(LOGTAG, "Add New Receipt Failed");
             Snackbar.make(findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
 
-        } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+        } else if (requestCode == REQUEST_IMAGE) {
 
             Log.d(LOGTAG, "Take image cancelled");
 
         } else {
             Log.e(LOGTAG, "Unsupported onActivityResult case");
         }
+
     }
 
     /**

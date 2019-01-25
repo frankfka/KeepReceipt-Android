@@ -22,6 +22,8 @@ import static com.jiafrank.keepreceipt.Constants.REQ_IMG_SIZE;
 
 public class ImageService {
 
+    public static String LOGTAG = "ImageService";
+
     /**
      * Create a new image file for which to save the picture
      */
@@ -47,31 +49,50 @@ public class ImageService {
         return new File(storageDirectory.concat(imageFileName));
     }
 
-    public static void compressAndSaveImage(File file) {
+    /**
+     * Save the bitmap to the image file
+     */
+    public static File saveBitmapToFile(Context context, Bitmap bitmap) throws IOException {
+        File fileToSaveTo = getNewImageFile(context);
+        FileOutputStream fileOutputStream =  new FileOutputStream(fileToSaveTo);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fileOutputStream);
+        fileOutputStream.close();
+        return fileToSaveTo;
+    }
+
+    /**
+     * Compresses image (the image must already be saved)
+     */
+    public static void compressImage(File file) {
+
         try {
 
             ExifInterface originalExif = new ExifInterface();
             originalExif.readExif(file.getAbsolutePath(), ExifInterface.Options.OPTION_ALL);
 
-            // Get amount to scale
-            BitmapFactory.Options scalingOptions = new BitmapFactory.Options();
-            scalingOptions.inSampleSize = calculateInSampleSize(scalingOptions);
+            if (originalExif.getAllTags() != null) {
+                // Get amount to scale
+                BitmapFactory.Options scalingOptions = new BitmapFactory.Options();
+                scalingOptions.inSampleSize = calculateInSampleSize(scalingOptions);
 
-            // Get scaled version of bitmap
-            InputStream inputStream = new FileInputStream(file);
-            Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, scalingOptions);
-            inputStream.close();
+                // Get scaled version of bitmap
+                InputStream inputStream = new FileInputStream(file);
+                Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, scalingOptions);
+                inputStream.close();
 
-            // Overwrite the file (create the file if it somehow does not exist)
-            file.createNewFile();
-            FileOutputStream outputStream = new FileOutputStream(file);
-            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 50 , outputStream);
+                // Overwrite the file (create the file if it somehow does not exist)
+                file.createNewFile();
+                FileOutputStream outputStream = new FileOutputStream(file);
+                selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 50 , outputStream);
 
+                originalExif.writeExif(file.getAbsolutePath());
 
-            originalExif.writeExif(file.getAbsolutePath());
+            } else {
+                Log.i(LOGTAG, "No EXIF data exists");
+            }
 
         } catch (Exception e) {
-            Log.e("ImageService", "Image compression failed", e);
+            Log.e(LOGTAG, "Image compression failed", e);
         }
     }
 
