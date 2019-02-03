@@ -6,16 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".view.HomeActivity">
 
-    <fragment
-        android:id="@+id/allReceiptsFragment"
-        android:name="com.jiafrank.keepreceipt.view.AllReceiptsFragment"
-        android:layout_width="0dp"
+    <FrameLayout
+        android:id="@+id/homeFragmentContainer"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/all_receipts_fragment" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
@@ -23,6 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/colorTextWhite"
+        style="@style/Widget.MaterialComponents.BottomNavigationView"
         app:itemIconTint="@color/colorAccent"
         app:itemTextColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"

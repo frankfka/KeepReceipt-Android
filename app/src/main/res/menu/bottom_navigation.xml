@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/navigation_songs"
+        android:id="@+id/navigation_all_receipts"
         android:icon="@drawable/ic_baseline_check_accent"
         android:title="View All"/>
 
     <item
-        android:id="@+id/navigation_albums"
+        android:id="@+id/navigation_search"
         android:icon="@drawable/ic_baseline_add_accent"
         android:title="Search"/>
 </menu>

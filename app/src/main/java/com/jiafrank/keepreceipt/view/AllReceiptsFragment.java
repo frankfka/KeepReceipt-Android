@@ -79,6 +79,8 @@ public class AllReceiptsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        setHasOptionsMenu(true);
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.all_receipts_fragment, container, false);
         parentActivity = getActivity();
