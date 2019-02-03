@@ -17,7 +17,7 @@
     <string name="edit_receipt_actionbar_title">Edit Receipt</string>
     <string name="view_receipt_activity_actionbar_title">Receipt</string>
 
-    <!--MainActivity-->
+    <!--AllReceiptsFragment-->
     <string name="main_activity_search_hint">Enter a vendor or amount</string>
 
     <!--Add/Edit/View Receipt-->

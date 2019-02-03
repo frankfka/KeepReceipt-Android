@@ -1,5 +1,6 @@
 package com.jiafrank.keepreceipt.view;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,18 +13,21 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jiafrank.keepreceipt.data.Receipt;
@@ -31,7 +35,6 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.RealmConfig;
 import com.jiafrank.keepreceipt.view.adapter.ReceiptListAdapter;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +45,7 @@ import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+import static android.app.Activity.RESULT_OK;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.ADD_NEW_RECEIPT;
@@ -50,12 +54,16 @@ import static com.jiafrank.keepreceipt.Constants.ADD_RECEIPT_CHOICE_IMPORT;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.REQUEST_IMAGE;
 
-public class MainActivity extends AppCompatActivity {
+public class AllReceiptsFragment extends Fragment {
 
-    private static final String LOGTAG = "MainActivity";
+    private static final String LOGTAG = "AllReceiptsFragment";
 
     // Gets passed to AddOrEditReceiptActivity
     private String newPhotoId;
+    
+    // Parent variables
+    private Activity parentActivity;
+    private View rootView;
 
     // UI Elements
     private ActionBar actionBar;
@@ -69,15 +77,17 @@ public class MainActivity extends AppCompatActivity {
     private ReceiptListAdapter receiptListAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        rootView = inflater.inflate(R.layout.all_receipts_fragment, container, false);
+        parentActivity = getActivity();
+        
         // Initialize views
-        actionBar = getSupportActionBar();
-        recyclerView = findViewById(R.id.recyclerView);
-        addItemButton = findViewById(R.id.addItemButton);
-        noReceiptsHintTextView = findViewById(R.id.noReceiptsHintTextView);
+        actionBar = ((HomeActivity) parentActivity).getSupportActionBar();
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+        addItemButton = rootView.findViewById(R.id.addItemButton);
+        noReceiptsHintTextView = rootView.findViewById(R.id.noReceiptsHintTextView);
 
         // Recyclerview performance fixes
         recyclerView.setHasFixedSize(true);
@@ -89,14 +99,15 @@ public class MainActivity extends AppCompatActivity {
 
         setUpUI();
 
+        return rootView;
     }
 
     /**
      * Options menu stuff
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.home_screen_menu, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.home_screen_menu, menu);
 
         // Set up search
         MenuItem searchItem = menu.findItem(R.id.action_search);
@@ -133,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        return super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     /**
@@ -150,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 // Show option to either import or take a picture
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(parentActivity);
                 builder.setTitle("Add New Receipt")
                         .setItems(ADD_RECEIPT_CHOICES, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -170,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set up recycler
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(parentActivity));
         receiptListAdapter = new ReceiptListAdapter(receiptsToShow);
         recyclerView.setAdapter(receiptListAdapter);
 
@@ -200,21 +211,21 @@ public class MainActivity extends AppCompatActivity {
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        if (takePictureIntent.resolveActivity(parentActivity.getPackageManager()) != null) {
 
             // Create a photo file to save the new photo
             File photoFile = null;
             try {
-                photoFile = ImageService.getNewImageFile(this);
+                photoFile = ImageService.getNewImageFile(parentActivity);
                 newPhotoId = photoFile.getName();
             } catch (IOException ex) {
                 Log.e(LOGTAG, "Could not make a new photo file");
-                Snackbar.make(findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
+                Snackbar.make(rootView.findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
             }
 
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
+                Uri photoURI = FileProvider.getUriForFile(parentActivity,
                         "com.jiafrank.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -230,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
         Intent importPictureIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         // Ensure that there's a gallery activity to handle the intent
-        if (importPictureIntent.resolveActivity(getPackageManager()) != null) {
+        if (importPictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(importPictureIntent, REQUEST_IMAGE);
         }
     }
@@ -239,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
      * Actions to take when we come back from taking a picture or from adding a new receipt
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         // Case where we ask for an image
         if (requestCode == REQUEST_IMAGE && resultCode == RESULT_OK) {
@@ -250,12 +261,12 @@ public class MainActivity extends AppCompatActivity {
 
                 // photoURI is non-null if we've imported an image
                 if (null != photoUri) {
-                    Bitmap selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-                    newPhotoId = ImageService.saveBitmapToFile(this, selectedImage).getName();
+                    Bitmap selectedImage = MediaStore.Images.Media.getBitmap(parentActivity.getContentResolver(), photoUri);
+                    newPhotoId = ImageService.saveBitmapToFile(parentActivity, selectedImage).getName();
                 }
 
                 // Launch into new activity
-                Intent addReceiptIntent = new Intent(MainActivity.this, AddOrEditReceiptActivity.class);
+                Intent addReceiptIntent = new Intent(this.parentActivity, AddOrEditReceiptActivity.class);
                 addReceiptIntent.putExtra(ID_STRING_INTENT_NAME, newPhotoId);
                 addReceiptIntent.putExtra(ACTIVITY_ACTION_INTENT_NAME, ACTIVITY_ACTION_CREATE);
                 startActivityForResult(addReceiptIntent, ADD_NEW_RECEIPT);
@@ -285,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
         else if (requestCode == ADD_NEW_RECEIPT) {
 
             Log.i(LOGTAG, "Add New Receipt Failed");
-            Snackbar.make(findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
+            Snackbar.make(rootView.findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
 
         } else if (requestCode == REQUEST_IMAGE) {
 
@@ -301,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
      * Set the default realm
      */
     private void initializeRealm() {
-        Realm.init(this);
+        Realm.init(parentActivity);
         Realm.setDefaultConfiguration(RealmConfig.getDefaultDatabaseConfig());
         realm = Realm.getDefaultInstance();
     }

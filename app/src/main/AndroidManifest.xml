@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.MainActivity">
+
+        <activity android:name=".view.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,6 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.AddOrEditReceiptActivity" />
+        <activity android:name=".view.ViewReceiptActivity" />
+        <activity android:name=".view.FullscreenImageActivity" />
+        <activity android:name=".view.PickCategoryActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -34,10 +38,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <activity android:name=".view.ViewReceiptActivity" />
-        <activity android:name=".view.FullscreenImageActivity" />
-        <activity android:name=".view.PickCategoryActivity" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
