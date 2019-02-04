@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,15 +17,22 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jiafrank.keepreceipt.R;
+import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import io.realm.Realm;
 
+import static com.jiafrank.keepreceipt.Constants.MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
 import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 
@@ -37,9 +45,13 @@ public class SearchFragment extends Fragment {
     private TextInputEditText keywordsInput;
     private TextInputEditText categoriesInput;
     private TextInputEditText maxPriceInput;
+    private TextInputLayout maxPriceInputLayout;
     private TextInputEditText minPriceInput;
+    private TextInputLayout minPriceInputLayout;
     private TextInputEditText maxDateInput;
+    private TextInputLayout maxDateInputLayout;
     private TextInputEditText minDateInput;
+    private TextInputLayout minDateInputLayout;
     private ImageButton clearMaxDateInputButton;
     private ImageButton clearMinDateInputButton;
     private Button searchButton;
@@ -48,6 +60,10 @@ public class SearchFragment extends Fragment {
     private Calendar nowCalendar = Calendar.getInstance(Locale.getDefault());
     private Calendar maxStatedCalendar;
     private Calendar minStatedCalendar;
+    private ArrayList<String> statedCategoryStrings;
+    private String statedKeywords;
+    private Double statedMaxPrice;
+    private Double statedMinPrice;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,9 +80,13 @@ public class SearchFragment extends Fragment {
         keywordsInput = rootView.findViewById(R.id.searchKeywordsInput);
         categoriesInput = rootView.findViewById(R.id.searchCategoryInput);
         maxPriceInput = rootView.findViewById(R.id.searchMaxPriceInput);
+        maxPriceInputLayout = rootView.findViewById(R.id.searchMaxPriceInputLayout);
         minPriceInput = rootView.findViewById(R.id.searchMinPriceInput);
+        minPriceInputLayout = rootView.findViewById(R.id.searchMinPriceInputLayout);
         maxDateInput = rootView.findViewById(R.id.searchMaxDateInput);
+        maxDateInputLayout = rootView.findViewById(R.id.searchMaxDateInputLayout);
         minDateInput = rootView.findViewById(R.id.searchMinDateInput);
+        maxPriceInputLayout = rootView.findViewById(R.id.searchMaxPriceInputLayout);
         clearMaxDateInputButton = rootView.findViewById(R.id.maxDateClearButton);
         clearMinDateInputButton = rootView.findViewById(R.id.minDateClearButton);
         searchButton = rootView.findViewById(R.id.searchButton);
@@ -83,7 +103,7 @@ public class SearchFragment extends Fragment {
         actionBar.setTitle(getString(R.string.search_title));
 
         /**
-         * Date Inputs
+         * Set Up Date Inputs
          */
         // First hide the clear date buttons
         showOrHideClearDateButtons();
@@ -154,17 +174,19 @@ public class SearchFragment extends Fragment {
 
 
         /**
-         * Category input
+         * Set Up Category input
          */
-//        categoriesInput.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Start new activity to pick category
-//                Intent intent = new Intent(parentActivity, PickCategoryActivity.class);
-//                intent.putExtra(SELECTED_CATEGORY_INTENT_NAME, null == statedCategory ? null : statedCategory.getName());
-//                startActivityForResult(intent, PICK_CATEGORY);
-//            }
-//        });
+        categoriesInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start new activity to pick category
+                Intent intent = new Intent(parentActivity, PickCategoryActivity.class);
+                // We allow selection of multiple categories
+                intent.putExtra(MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME, true);
+                intent.putStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME, null == statedCategoryStrings ? new ArrayList<String>() : new ArrayList<>(statedCategoryStrings));
+                startActivityForResult(intent, PICK_CATEGORY);
+            }
+        });
 
     }
 
@@ -186,7 +208,68 @@ public class SearchFragment extends Fragment {
         } else {
             clearMinDateInputButton.setVisibility(View.VISIBLE);
         }
+    }
 
+    /**
+     * Returns true if everything is OK
+     */
+    private boolean validateInputsOrShowError() {
+        boolean error = false;
+
+        // If min price is greater than max price
+        if (statedMaxPrice != null && statedMinPrice != null && statedMinPrice > statedMaxPrice) {
+            priceInputLayout.setErrorEnabled(true);
+            priceInputLayout.setError(getString(R.string.price_input_error_message));
+            error = true;
+        } else {
+            priceInputLayout.setError(null);
+            priceInputLayout.setErrorEnabled(false);
+        }
+
+        // If min date is greater than max date
+        if (minStatedCalendar != null && maxStatedCalendar != null && minStatedCalendar.after(maxStatedCalendar)) {
+            vendorNameInputLayout.setErrorEnabled(true);
+            vendorNameInputLayout.setError(getString(R.string.vendor_input_error_message));
+            error = true;
+        } else {
+            vendorNameInputLayout.setErrorEnabled(false);
+            vendorNameInputLayout.setError(null);
+        }
+
+        // TODO can also check whether either of the calendars are later than the current date
+
+        return !error;
+    }
+
+    /**
+     * Retrieves all the other inputs
+     * Does not touch DATE or CATEGORIES - these are set elsewhere!
+     */
+    private void getInputs() {
+
+        // Keywords
+        Editable keywordsInputText = keywordsInput.getText();
+        statedKeywords = (keywordsInputText == null || keywordsInputText.toString().isEmpty()) ? null : keywordsInputText.toString();
+
+        // Price
+        Editable minPriceInputText = minPriceInput.getText();
+        statedMinPrice = (minPriceInputText == null || minPriceInputText.toString().isEmpty()) ? null : Double.valueOf(minPriceInputText.toString());
+        Editable maxPriceInputText = maxPriceInput.getText();
+        statedMaxPrice = (maxPriceInputText == null || maxPriceInputText.toString().isEmpty()) ? null : Double.valueOf(maxPriceInputText.toString());
+
+    }
+
+    /**
+     * Used in returning from PickCategory
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_CATEGORY) {
+            // This will always be passed back, but will be empty if nothing has been picked
+            List<String> pickedCategories = data.getStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME);
+            statedCategoryStrings = new ArrayList<>(pickedCategories);
+            // Construct a string to show - this can eventually be extracted as its own method if we have multiple category selection elsewhere
+            categoriesInput.setText(String.join(", ", statedCategoryStrings));
+        }
     }
 
     /**
