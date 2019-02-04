@@ -118,7 +118,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
         priceInputLayout = findViewById(R.id.receiptPriceInputLayout);
         dateInput = findViewById(R.id.receiptDateInput);
         categoryInput = findViewById(R.id.receiptCategoryInput);
-        submitButton = findViewById(R.id.submit_button);
+        submitButton = findViewById(R.id.submitButton);
         receiptImageView = findViewById(R.id.largeReceiptImageView);
         setUpUI();
 

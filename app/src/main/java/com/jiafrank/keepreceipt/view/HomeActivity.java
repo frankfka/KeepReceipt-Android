@@ -17,6 +17,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private static String LOGTAG = "HomeActivity";
 
+    // UI References
     private ActionBar toolbar;
     private BottomNavigationView bottomNavigationView;
 
@@ -25,23 +26,24 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Assign UI references
         toolbar = getSupportActionBar();
         bottomNavigationView = findViewById(R.id.bottomNav);
 
-        // load the store fragment by default
+        // This loads the default fragment
         loadFragment(new AllReceiptsFragment());
 
+        // Set navigation listeners for the bottom navigation
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-                switch (menuItem.getItemId()) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
                     case R.id.navigation_all_receipts:
-                        Log.e(LOGTAG,"sdf");
                         loadFragment(new AllReceiptsFragment());
+                        break;
                     case R.id.navigation_search:
                         loadFragment(new SearchFragment());
-
+                        break;
                 }
                 return true;
 
@@ -49,8 +51,8 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    // Load a specific fragment
     private void loadFragment(Fragment fragment) {
-        // load fragment
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.homeFragmentContainer, fragment);
         transaction.addToBackStack(null);

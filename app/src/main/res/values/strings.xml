@@ -64,7 +64,17 @@
     <string name="error_snackbar">Something Went Wrong</string>
     <string name="no_receipts_hint">No receipts have been added yet.\n\nUse KeepReceipt to easily digitalize and track your purchases.</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--Search-->
+    <string name="search_title">Advanced Search</string>
+    <string name="search_hint_keywords">Keywords</string>
+    <string name="search_header_general">General</string>
+    <string name="search_hint_category">Category</string>
+    <string name="search_header_price">Price</string>
+    <string name="search_hint_min_price">Minimum</string>
+    <string name="search_hint_max_price">Maximum</string>
+    <string name="search_header_date">Date</string>
+    <string name="search_hint_min_date">From</string>
+    <string name="search_hint_max_date">To</string>
+    <string name="search_button_label">Search</string>
 
 </resources>

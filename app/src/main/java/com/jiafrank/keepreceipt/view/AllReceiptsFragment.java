@@ -82,7 +82,7 @@ public class AllReceiptsFragment extends Fragment {
 
         setHasOptionsMenu(true);
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.all_receipts_fragment, container, false);
+        rootView = inflater.inflate(R.layout.fragment_all_receipts, container, false);
         parentActivity = getActivity();
         
         // Initialize views
@@ -222,7 +222,7 @@ public class AllReceiptsFragment extends Fragment {
                 newPhotoId = photoFile.getName();
             } catch (IOException ex) {
                 Log.e(LOGTAG, "Could not make a new photo file");
-                Snackbar.make(rootView.findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
+                Snackbar.make(rootView.findViewById(R.id.allReceiptsRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
             }
 
             // Continue only if the File was successfully created
@@ -298,7 +298,7 @@ public class AllReceiptsFragment extends Fragment {
         else if (requestCode == ADD_NEW_RECEIPT) {
 
             Log.i(LOGTAG, "Add New Receipt Failed");
-            Snackbar.make(rootView.findViewById(R.id.mainActivityRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
+            Snackbar.make(rootView.findViewById(R.id.allReceiptsRootView), getString(R.string.error_snackbar), Snackbar.LENGTH_SHORT);
 
         } else if (requestCode == REQUEST_IMAGE) {
 
