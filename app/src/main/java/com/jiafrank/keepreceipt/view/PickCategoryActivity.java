@@ -13,6 +13,9 @@ import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.view.adapter.CategoryListAdapter;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,13 +23,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import lombok.Setter;
 
+import static com.jiafrank.keepreceipt.Constants.MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
 import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 
 public class PickCategoryActivity extends AppCompatActivity {
 
     private static String LOGTAG = "PickCategoryActivity";
+
+    private boolean canPickMultipleCategories = false;
 
     // UI Elements
     private RecyclerView recyclerView;
@@ -40,8 +47,8 @@ public class PickCategoryActivity extends AppCompatActivity {
     // State variables
     private RealmResults<Category> categories;
     private CategoryListAdapter categoryListAdapter;
-    private Category selectedCategory;
-    private Category pickedCategory;
+    private List<Category> selectedCategories = new ArrayList<>();
+    private List<Category> pickedCategories = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +56,8 @@ public class PickCategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pick_category);
 
         // Get current selected category name (passed from intent)
-        String possiblySelectedCategoryName = getIntent().getStringExtra(SELECTED_CATEGORY_INTENT_NAME);
+        List<String> possiblySelectedCategoryNames = getIntent().getStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME);
+        canPickMultipleCategories = getIntent().getBooleanExtra(MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME, false);
 
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
@@ -67,8 +75,10 @@ public class PickCategoryActivity extends AppCompatActivity {
             categories = realm.where(Category.class).findAll();
         }
         // If passed in, this object has to exist
-        if (null != possiblySelectedCategoryName) {
-            selectedCategory = categories.where().equalTo(getString(R.string.REALM_category_name), possiblySelectedCategoryName).findAll().first();
+        if (null != possiblySelectedCategoryNames) {
+            for (String categoryName: possiblySelectedCategoryNames) {
+                selectedCategories.add(categories.where().equalTo(getString(R.string.REALM_category_name), categoryName).findAll().first());
+            }
         }
 
         setUpUI();
@@ -90,9 +100,13 @@ public class PickCategoryActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                pickedCategory = categoryListAdapter.getSelectedCategory();
+                pickedCategories = categoryListAdapter.getSelectedCategories();
+                List<String> pickedCategoryStrings = new ArrayList<>();
+                for (Category category: pickedCategories) {
+                    pickedCategoryStrings.add(category.getName());
+                }
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(SELECTED_CATEGORY_INTENT_NAME, null == pickedCategory ? null : pickedCategory.getName());
+                returnIntent.putStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME, (ArrayList<String>) pickedCategoryStrings);
                 setResult(PICK_CATEGORY, returnIntent);
                 finish();
                 return true;
@@ -110,7 +124,7 @@ public class PickCategoryActivity extends AppCompatActivity {
 
         // Set up recycler
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        categoryListAdapter = new CategoryListAdapter(categories, false, selectedCategory);
+        categoryListAdapter = new CategoryListAdapter(categories, false, selectedCategories, canPickMultipleCategories);
         recyclerView.setAdapter(categoryListAdapter);
 
         // Just show help text if no receipts are available

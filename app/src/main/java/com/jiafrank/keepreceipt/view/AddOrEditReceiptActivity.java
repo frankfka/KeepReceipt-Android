@@ -27,8 +27,11 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.service.UIService;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import io.realm.Realm;
@@ -38,6 +41,7 @@ import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_CREATE;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_EDIT;
 import static com.jiafrank.keepreceipt.Constants.ACTIVITY_ACTION_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.ID_STRING_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
 import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 import static com.jiafrank.keepreceipt.service.UIService.DISMISS_ALERT_DIALOG_LISTENER;
@@ -213,7 +217,8 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Start new activity to pick category
                 Intent intent = new Intent(AddOrEditReceiptActivity.this, PickCategoryActivity.class);
-                intent.putExtra(SELECTED_CATEGORY_INTENT_NAME, null == statedCategory ? null : statedCategory.getName());
+                intent.putExtra(MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME, false);
+                intent.putStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME, null == statedCategory ? new ArrayList<String>() : new ArrayList<>(Collections.singletonList(statedCategory.getName())));
                 startActivityForResult(intent, PICK_CATEGORY);
             }
         });
@@ -307,12 +312,14 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_CATEGORY) {
-            String pickedCategory = data.getStringExtra(SELECTED_CATEGORY_INTENT_NAME);
-            if (null == pickedCategory) {
+            // This will always be passed back, but will be empty if nothing has been picked
+            List<String> pickedCategories = data.getStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME);
+            if (pickedCategories.isEmpty()) {
                 statedCategory = null;
             } else {
                 try (Realm realm = Realm.getDefaultInstance()) {
-                    statedCategory = realm.where(Category.class).equalTo(getString(R.string.REALM_category_name), pickedCategory).findFirst();
+                    // We limit to one category, so just get first
+                    statedCategory = realm.where(Category.class).equalTo(getString(R.string.REALM_category_name), pickedCategories.get(0)).findFirst();
                 }
             }
             categoryInput.setText(getSelectedCategoryName());

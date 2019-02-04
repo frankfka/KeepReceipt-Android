@@ -20,6 +20,10 @@ import com.jiafrank.keepreceipt.service.ImageService;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 import com.jiafrank.keepreceipt.view.ViewReceiptActivity;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import androidx.recyclerview.widget.RecyclerView;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -34,17 +38,20 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
     // The data to display
     private RealmResults<Category> categories;
     private boolean isEditing;
+    @Setter
+    private boolean canSelectMultiple = false;
     @Getter
     @Setter
-    private Category selectedCategory;
+    private List<Category> selectedCategories;
 
     /**
      * This adapter takes in RealmResults containing a set of categories to display
      */
-    public CategoryListAdapter(RealmResults<Category> categories, boolean isEditing, final Category selectedCategory) {
-        this.selectedCategory = selectedCategory;
+    public CategoryListAdapter(RealmResults<Category> categories, boolean isEditing, final List<Category> selectedCategories, boolean canSelectMultiple) {
+        this.selectedCategories = selectedCategories;
         this.categories = categories;
         this.isEditing = isEditing;
+        this.canSelectMultiple = canSelectMultiple;
 
         // Listen for changes & update views if necessary
         categories.addChangeListener(new RealmChangeListener<RealmResults<Category>>() {
@@ -63,11 +70,6 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
     @Override
     public void onBindViewHolder(final CategoryItemViewHolder holder, int position) {
 
-        // This invalidates the currently selected category if it was deleted
-        if (null != selectedCategory && !selectedCategory.isValid()) {
-            setSelectedCategory(null);
-        }
-
         // Get References to UI elements
         TextView categoryName = holder.rootViewContainer.findViewById(R.id.categoryNameTextView);
         ImageButton deleteCategoryButton = holder.rootViewContainer.findViewById(R.id.deleteCategoryButton);
@@ -75,6 +77,14 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
 
         // Get the receipt to show the data for
         final Category category = categories.get(position);
+
+        // This invalidates the currently selected category if it was deleted
+        Iterator<Category> selectedCategoriesIter = selectedCategories.iterator();
+        while(selectedCategoriesIter.hasNext()) {
+            if (!selectedCategoriesIter.next().isValid()) {
+                selectedCategoriesIter.remove();
+            }
+        }
 
         // Update UI
         if(isEditing) {
@@ -106,7 +116,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             // Load up UI
             deleteCategoryButton.setVisibility(View.GONE);
             categoryName.setText(category.getName());
-            if(category.equals(selectedCategory)) {
+            if(selectedCategories.contains(category)) {
                 selectedCheckmark.setVisibility(View.VISIBLE);
             } else {
                 selectedCheckmark.setVisibility(View.GONE);
@@ -117,12 +127,18 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
                 @Override
                 public void onClick(View v) {
 
-                    // Toggle selection of category, then reload data
-                    if (category.equals(selectedCategory)) {
-                        selectedCategory = null;
-                    } else {
-                        selectedCategory = category;
-                    }
+                        if (selectedCategories.contains(category)) {
+                            selectedCategories.removeAll(Collections.singleton(category));
+                        } else {
+                            if(canSelectMultiple) {
+                                // If we can select multiple, add to list
+                                selectedCategories.add(category);
+                            } else {
+                                // Create a new singleton list
+                                selectedCategories = Collections.singletonList(category);
+                            }
+                        }
+
                     notifyDataSetChanged();
 
                 }

@@ -6,8 +6,10 @@ public class Constants {
     public static String ID_STRING_INTENT_NAME = "ID_STRING_INTENT_NAME";
     // Key to store the action for edit/add receipt
     public static String ACTIVITY_ACTION_INTENT_NAME = "ACTIVITY_ACTION_INTENT_NAME";
-    // Key to store selected category for pick category
+    // Key to store selected categories for pick category
     public static String SELECTED_CATEGORY_INTENT_NAME = "SELECTED_CATEGORY_INTENT_NAME";
+    // Key to store whether we can pick multiple categories for pick category
+    public static String MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME = "MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME";
     // Action values for edit/add receipt
     public static final int ACTIVITY_ACTION_EDIT = 1;
     public static final int ACTIVITY_ACTION_CREATE = 2;
