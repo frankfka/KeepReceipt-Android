@@ -86,7 +86,7 @@ public class SearchFragment extends Fragment {
         maxDateInput = rootView.findViewById(R.id.searchMaxDateInput);
         maxDateInputLayout = rootView.findViewById(R.id.searchMaxDateInputLayout);
         minDateInput = rootView.findViewById(R.id.searchMinDateInput);
-        maxPriceInputLayout = rootView.findViewById(R.id.searchMaxPriceInputLayout);
+        minDateInputLayout = rootView.findViewById(R.id.searchMinDateInputLayout);
         clearMaxDateInputButton = rootView.findViewById(R.id.maxDateClearButton);
         clearMinDateInputButton = rootView.findViewById(R.id.minDateClearButton);
         searchButton = rootView.findViewById(R.id.searchButton);
@@ -188,6 +188,21 @@ public class SearchFragment extends Fragment {
             }
         });
 
+        /**
+         * Finally, set up the listener for search
+         */
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Retrieve input values
+                getInputs();
+                // Validate, then construct query string
+                if (validateInputsOrShowError()) {
+                    // Pass all params to another activity
+                }
+            }
+        });
+
     }
 
     /**
@@ -218,22 +233,26 @@ public class SearchFragment extends Fragment {
 
         // If min price is greater than max price
         if (statedMaxPrice != null && statedMinPrice != null && statedMinPrice > statedMaxPrice) {
-            priceInputLayout.setErrorEnabled(true);
-            priceInputLayout.setError(getString(R.string.price_input_error_message));
+            maxPriceInputLayout.setErrorEnabled(true);
+            maxPriceInputLayout.setError(getString(R.string.search_price_error_message));
+            minPriceInputLayout.setErrorEnabled(true);
             error = true;
         } else {
-            priceInputLayout.setError(null);
-            priceInputLayout.setErrorEnabled(false);
+            maxPriceInputLayout.setErrorEnabled(false);
+            maxPriceInputLayout.setError(null);
+            minPriceInputLayout.setErrorEnabled(false);
         }
 
         // If min date is greater than max date
         if (minStatedCalendar != null && maxStatedCalendar != null && minStatedCalendar.after(maxStatedCalendar)) {
-            vendorNameInputLayout.setErrorEnabled(true);
-            vendorNameInputLayout.setError(getString(R.string.vendor_input_error_message));
+            maxDateInputLayout.setErrorEnabled(true);
+            maxDateInputLayout.setError(getString(R.string.search_date_error_message));
+            minDateInputLayout.setErrorEnabled(true);
             error = true;
         } else {
-            vendorNameInputLayout.setErrorEnabled(false);
-            vendorNameInputLayout.setError(null);
+            maxDateInputLayout.setErrorEnabled(false);
+            maxDateInputLayout.setError(null);
+            minDateInputLayout.setErrorEnabled(false);
         }
 
         // TODO can also check whether either of the calendars are later than the current date
@@ -256,6 +275,31 @@ public class SearchFragment extends Fragment {
         statedMinPrice = (minPriceInputText == null || minPriceInputText.toString().isEmpty()) ? null : Double.valueOf(minPriceInputText.toString());
         Editable maxPriceInputText = maxPriceInput.getText();
         statedMaxPrice = (maxPriceInputText == null || maxPriceInputText.toString().isEmpty()) ? null : Double.valueOf(maxPriceInputText.toString());
+
+    }
+
+    /**
+     * Clears all state variables and resets inputs
+     */
+    private void resetForm() {
+        minStatedCalendar = null;
+        maxStatedCalendar = null;
+        statedMinPrice = null;
+        statedMaxPrice = null;
+        statedKeywords = null;
+        statedCategoryStrings = new ArrayList<>();
+
+        keywordsInput.setText("");
+        categoriesInput.setText("");
+        minPriceInput.setText("");
+        maxPriceInput.setText("");
+        minDateInput.setText("");
+        maxDateInput.setText("");
+
+        // This resets any errors
+        validateInputsOrShowError();
+        // This resets clear buttons
+        showOrHideClearDateButtons();
 
     }
 
@@ -284,7 +328,7 @@ public class SearchFragment extends Fragment {
         resetItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                // TODO clear all fields
+                resetForm();
                 return true;
             }
         });

@@ -10,6 +10,13 @@ public class Constants {
     public static String SELECTED_CATEGORY_INTENT_NAME = "SELECTED_CATEGORY_INTENT_NAME";
     // Key to store whether we can pick multiple categories for pick category
     public static String MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME = "MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME";
+    // Keys to pass query parameters
+    public static String SEARCH_KEYWORDS_INTENT_NAME = "SEARCH_KEYWORDS_INTENT_NAME";
+    public static String SEARCH_CATEGORIES_INTENT_NAME = "SEARCH_CATEGORIES_INTENT_NAME";
+    public static String SEARCH_MAX_PRICE_INTENT_NAME = "SEARCH_MAX_PRICE_INTENT_NAME";
+    public static String SEARCH_MIN_PRICE_INTENT_NAME = "SEARCH_MIN_PRICE_INTENT_NAME";
+    public static String SEARCH_MAX_DATE_INTENT_NAME = "SEARCH_MAX_DATE_INTENT_NAME";
+    public static String SEARCH_MIN_DATE_INTENT_NAME = "SEARCH_MIN_DATE_INTENT_NAME";
     // Action values for edit/add receipt
     public static final int ACTIVITY_ACTION_EDIT = 1;
     public static final int ACTIVITY_ACTION_CREATE = 2;

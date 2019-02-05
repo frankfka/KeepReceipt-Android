@@ -16,6 +16,7 @@
     <string name="add_new_receipt_actionbar_title">Add New Receipt</string>
     <string name="edit_receipt_actionbar_title">Edit Receipt</string>
     <string name="view_receipt_activity_actionbar_title">Receipt</string>
+    <string name="search_results_activity_title">Search Results</string>
 
     <!--AllReceiptsFragment-->
     <string name="main_activity_search_hint">Enter a vendor or amount</string>
@@ -76,5 +77,8 @@
     <string name="search_hint_min_date">From</string>
     <string name="search_hint_max_date">To</string>
     <string name="search_button_label">Search</string>
+    <string name="search_price_error_message">Maximum price must be greater than minimum price</string>
+    <string name="search_date_error_message">\"From\" date must be earlier than \"To\"</string>
+    <string name="search_no_results_text">No Results Found</string>
 
 </resources>
