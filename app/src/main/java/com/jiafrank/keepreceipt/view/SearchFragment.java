@@ -22,6 +22,7 @@ import com.jiafrank.keepreceipt.R;
 import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.service.TextFormatService;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,6 +35,13 @@ import io.realm.Realm;
 
 import static com.jiafrank.keepreceipt.Constants.MULTIPLE_CATEGORY_SELECTION_ALLOWED_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.PICK_CATEGORY;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_CATEGORIES_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_DATE_FORMAT;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_KEYWORDS_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_MAX_DATE_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_MAX_PRICE_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_MIN_DATE_INTENT_NAME;
+import static com.jiafrank.keepreceipt.Constants.SEARCH_MIN_PRICE_INTENT_NAME;
 import static com.jiafrank.keepreceipt.Constants.SELECTED_CATEGORY_INTENT_NAME;
 
 public class SearchFragment extends Fragment {
@@ -187,6 +195,8 @@ public class SearchFragment extends Fragment {
                 startActivityForResult(intent, PICK_CATEGORY);
             }
         });
+        // By default, all categories are chosen
+        categoriesInput.setText(getString(R.string.search_categories_any_placeholder));
 
         /**
          * Finally, set up the listener for search
@@ -199,6 +209,14 @@ public class SearchFragment extends Fragment {
                 // Validate, then construct query string
                 if (validateInputsOrShowError()) {
                     // Pass all params to another activity
+                    Intent goToResultsActivity = new Intent(parentActivity, SearchResultsActivity.class);
+                    goToResultsActivity.putExtra(SEARCH_KEYWORDS_INTENT_NAME, statedKeywords);
+                    goToResultsActivity.putStringArrayListExtra(SEARCH_CATEGORIES_INTENT_NAME, statedCategoryStrings);
+                    goToResultsActivity.putExtra(SEARCH_MAX_PRICE_INTENT_NAME, statedMaxPrice == null ? null : String.valueOf(statedMaxPrice));
+                    goToResultsActivity.putExtra(SEARCH_MIN_PRICE_INTENT_NAME, statedMinPrice == null ? null : String.valueOf(statedMinPrice));
+                    goToResultsActivity.putExtra(SEARCH_MAX_DATE_INTENT_NAME, maxStatedCalendar == null ? null : (new SimpleDateFormat(SEARCH_DATE_FORMAT, Locale.getDefault())).format(maxStatedCalendar.getTime()));
+                    goToResultsActivity.putExtra(SEARCH_MIN_DATE_INTENT_NAME, minStatedCalendar == null ? null : (new SimpleDateFormat(SEARCH_DATE_FORMAT, Locale.getDefault())).format(minStatedCalendar.getTime()));
+                    parentActivity.startActivity(goToResultsActivity);
                 }
             }
         });
@@ -290,7 +308,7 @@ public class SearchFragment extends Fragment {
         statedCategoryStrings = new ArrayList<>();
 
         keywordsInput.setText("");
-        categoriesInput.setText("");
+        categoriesInput.setText(getString(R.string.search_categories_any_placeholder));
         minPriceInput.setText("");
         maxPriceInput.setText("");
         minDateInput.setText("");
@@ -307,12 +325,16 @@ public class SearchFragment extends Fragment {
      * Used in returning from PickCategory
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_CATEGORY) {
+        if (requestCode == PICK_CATEGORY && data != null) {
             // This will always be passed back, but will be empty if nothing has been picked
             List<String> pickedCategories = data.getStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME);
             statedCategoryStrings = new ArrayList<>(pickedCategories);
             // Construct a string to show - this can eventually be extracted as its own method if we have multiple category selection elsewhere
-            categoriesInput.setText(String.join(", ", statedCategoryStrings));
+            if (statedCategoryStrings.isEmpty()) {
+                categoriesInput.setText(getString(R.string.search_categories_any_placeholder));
+            } else {
+                categoriesInput.setText(String.join(", ", statedCategoryStrings));
+            }
         }
     }
 

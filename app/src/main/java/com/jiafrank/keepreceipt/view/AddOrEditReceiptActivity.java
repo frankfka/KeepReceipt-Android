@@ -314,7 +314,7 @@ public class AddOrEditReceiptActivity extends AppCompatActivity {
      * Only used right now to return from PickCategory
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_CATEGORY) {
+        if (requestCode == PICK_CATEGORY && data != null) {
             // This will always be passed back, but will be empty if nothing has been picked
             List<String> pickedCategories = data.getStringArrayListExtra(SELECTED_CATEGORY_INTENT_NAME);
             if (pickedCategories.isEmpty()) {

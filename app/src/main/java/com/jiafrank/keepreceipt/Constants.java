@@ -17,6 +17,7 @@ public class Constants {
     public static String SEARCH_MIN_PRICE_INTENT_NAME = "SEARCH_MIN_PRICE_INTENT_NAME";
     public static String SEARCH_MAX_DATE_INTENT_NAME = "SEARCH_MAX_DATE_INTENT_NAME";
     public static String SEARCH_MIN_DATE_INTENT_NAME = "SEARCH_MIN_DATE_INTENT_NAME";
+    public static String SEARCH_DATE_FORMAT = "yyyyMMdd";
     // Action values for edit/add receipt
     public static final int ACTIVITY_ACTION_EDIT = 1;
     public static final int ACTIVITY_ACTION_CREATE = 2;

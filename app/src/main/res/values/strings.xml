@@ -48,6 +48,7 @@
     <string name="REALM_receipt_time">transactionTime</string>
     <string name="REALM_receipt_id">receiptId</string>
     <string name="REALM_category_name">name</string>
+    <string name="REALM_parent_category_name">parentCategories.name</string>
 
     <!--Category UI-->
     <string name="select_category_title">Select Category</string>
@@ -80,5 +81,6 @@
     <string name="search_price_error_message">Maximum price must be greater than minimum price</string>
     <string name="search_date_error_message">\"From\" date must be earlier than \"To\"</string>
     <string name="search_no_results_text">No Results Found</string>
+    <string name="search_categories_any_placeholder">Any</string>
 
 </resources>
