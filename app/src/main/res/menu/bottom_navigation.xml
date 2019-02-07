@@ -2,11 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_all_receipts"
-        android:icon="@drawable/ic_baseline_check_accent"
-        android:title="View All"/>
-
+        android:icon="@drawable/ic_baseline_view_all"
+        android:title="@string/bottom_nav_view_all"/>
     <item
         android:id="@+id/navigation_search"
-        android:icon="@drawable/ic_baseline_add_accent"
-        android:title="Search"/>
+        android:icon="@drawable/ic_action_search_white"
+        android:title="@string/bottom_nav_search"/>
 </menu>

@@ -125,20 +125,20 @@ public class SearchResultsActivity extends AppCompatActivity {
                 // If both date ranges are specified
                 inputQuery = inputQuery.between(getString(R.string.REALM_receipt_time), minStatedDate, maxStatedDate);
             } else if (minStatedDate != null) {
-                inputQuery = inputQuery.greaterThan(getString(R.string.REALM_receipt_time), minStatedDate);
+                inputQuery = inputQuery.greaterThanOrEqualTo(getString(R.string.REALM_receipt_time), minStatedDate);
             } else if (maxStatedDate != null) {
-                inputQuery = inputQuery.lessThan(getString(R.string.REALM_receipt_time), maxStatedDate);
+                inputQuery = inputQuery.lessThanOrEqualTo(getString(R.string.REALM_receipt_time), maxStatedDate);
             }
 
             // Price
             if (statedMaxPrice != null) {
-                inputQuery = inputQuery.lessThan(getString(R.string.REALM_receipt_amount), statedMaxPrice);
+                inputQuery = inputQuery.lessThanOrEqualTo(getString(R.string.REALM_receipt_amount), statedMaxPrice);
             }
             if (statedMinPrice != null) {
-                inputQuery = inputQuery.greaterThan(getString(R.string.REALM_receipt_amount), statedMinPrice);
+                inputQuery = inputQuery.greaterThanOrEqualTo(getString(R.string.REALM_receipt_amount), statedMinPrice);
             }
 
-            Log.e(LOGTAG, inputQuery.getDescription());
+            Log.i(LOGTAG, inputQuery.getDescription());
             receiptsToShow = inputQuery.findAll();
         }
     }

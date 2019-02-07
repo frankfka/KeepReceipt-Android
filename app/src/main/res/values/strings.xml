@@ -82,5 +82,7 @@
     <string name="search_date_error_message">\"From\" date must be earlier than \"To\"</string>
     <string name="search_no_results_text">No Results Found</string>
     <string name="search_categories_any_placeholder">Any</string>
+    <string name="bottom_nav_view_all">View All</string>
+    <string name="bottom_nav_search">Search</string>
 
 </resources>
