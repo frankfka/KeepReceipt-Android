@@ -14,14 +14,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jiafrank.keepreceipt.R;
-import com.jiafrank.keepreceipt.data.Category;
 import com.jiafrank.keepreceipt.data.Receipt;
 import com.jiafrank.keepreceipt.view.adapter.ReceiptListAdapter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -112,16 +110,35 @@ public class SearchResultsActivity extends AppCompatActivity {
                 inputQuery = inputQuery.contains(getString(R.string.REALM_receipt_vendor), statedKeywords, Case.INSENSITIVE);
             }
             if (statedCategoryStrings != null && !statedCategoryStrings.isEmpty()) {
+                // We need to use a traditional for loop since we will add OR if the size of the list is greater than 1
                 for (int i = 0; i < statedCategoryStrings.size(); i++) {
                     if (i != 0) {
+                        // Add OR to allow for multiple categories
                         inputQuery = inputQuery.or();
                     }
                     inputQuery = inputQuery.equalTo(getString(R.string.REALM_parent_category_name), statedCategoryStrings.get(i));
                 }
             }
 
+            // Date
+            if (maxStatedDate != null && minStatedDate != null) {
+                // If both date ranges are specified
+                inputQuery = inputQuery.between(getString(R.string.REALM_receipt_time), minStatedDate, maxStatedDate);
+            } else if (minStatedDate != null) {
+                inputQuery = inputQuery.greaterThan(getString(R.string.REALM_receipt_time), minStatedDate);
+            } else if (maxStatedDate != null) {
+                inputQuery = inputQuery.lessThan(getString(R.string.REALM_receipt_time), maxStatedDate);
+            }
+
+            // Price
+            if (statedMaxPrice != null) {
+                inputQuery = inputQuery.lessThan(getString(R.string.REALM_receipt_amount), statedMaxPrice);
+            }
+            if (statedMinPrice != null) {
+                inputQuery = inputQuery.greaterThan(getString(R.string.REALM_receipt_amount), statedMinPrice);
+            }
+
             Log.e(LOGTAG, inputQuery.getDescription());
-            Log.e(LOGTAG, String.valueOf(inputQuery.findAll().size()));
             receiptsToShow = inputQuery.findAll();
         }
     }
@@ -132,10 +149,12 @@ public class SearchResultsActivity extends AppCompatActivity {
             noResultsText.setVisibility(View.VISIBLE);
             searchResultsRecycler.setVisibility(View.GONE);
         } else {
+            // Set up the recyclerview
             searchResultsRecycler.setLayoutManager(new LinearLayoutManager(this));
             searchResultsRecycler.setHasFixedSize(true);
             receiptListAdapter = new ReceiptListAdapter(receiptsToShow);
             searchResultsRecycler.setAdapter(receiptListAdapter);
+            // Toggle visibility
             noResultsText.setVisibility(View.GONE);
             searchResultsRecycler.setVisibility(View.VISIBLE);
         }
